@@ -24,14 +24,22 @@ data$toohighblsugar[is.na(data$toohighblsugar)]<-mean(data$toohighblsugar,na.rm=
 data$toohighblsugar <- round(data$toohighblsugar, digits = 1)
 
 ## Grouping Data ###
-Povrate <- healthdata$imputed_neighpovgroup4_1519
-
-healthdataCors <- healthdata |> 
+smokingdata <- select(data, imputed_povertygroup, imputed_povgroup3, 
+                      imputed_pov200, cpd20a, everydaycpda, heavysmoker20a, smokecat, 
+                      sourcelastcig, cost20cigarettes, cigpurchase20, smokeecig12m20_q1,
+                      smokeecig30days20_q1, smokehookah12m_q1)
+alcoholdata <- select(data, imputed_povertygroup, drinker, daysalc30, averagedrink20, heavydrink20, bingenew)
+data_suicide <- select(data, imputed_povertygroup,
+                       ipvphy, insultipv, lowinchousing20, delaypayrent, rodentsstreet)
+mentalhealthdata <- select(data, imputed_povertygroup, imputed_povgroup3, 
+                           imputed_pov200, mood1, mood2, mood3, mood4, mood5,
+                           mood6, mood8, mood9, mood11)
+dataCors <- mentalhealthdata |> 
   cor() |>
   melt() |>
   as.data.frame()
 
-ggplot(irisCors, aes(x = Var1, y = Var2, fill = value)) +
+ggplot(dataCors, aes(x = Var1, y = Var2, fill = value)) +
   geom_tile() +
-  scale_fill_gradient2(low = "gray", high = "purple", mid = "lavender",
+  scale_fill_gradient2(low = "lightgray", high = "royalblue", mid = "lightblue",
                        midpoint = 0)
