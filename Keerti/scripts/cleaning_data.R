@@ -24,8 +24,9 @@ data_immunizations <- select(data, agegroup, agegroup5, agegroup6, age21up, age2
                              medplace, didntgetcare20, regularrx, skiprxcost,toldprescription20,
                              takingmeds20, fluvaccineshot, whereflu20)
 
+
 # tile plot
-dataCors <- data_immunizations |>
+dataCors <- final_data |>
   cor() |>
   melt() |>
   as.data.frame()
@@ -36,3 +37,39 @@ plots <- ggplot(dataCors, aes(x = Var1, y = Var2, fill = value)) +
                         midpoint = 0)
 
 plots + theme(axis.text.x = element_text(angle=90, hjust=1))
+
+
+
+
+# age, poverty, insurance, access to healthcare, immunizations
+df1 <- select(data, agegroup6, imputed_povertygroup, 
+                   generalhealth, insuredgateway20, insured, insure5, pcp20,
+                   medplace, didntgetcare20, regularrx, fluvaccineshot)
+
+df2<-df1[(df1$fluvaccineshot==1 | df1$fluvaccineshot==2),]
+
+df2<-df2[(df2$agegroup6==1 | df2$agegroup6==2 | df2$agegroup6==3 | 
+            df2$agegroup6==4 | df2$agegroup6==5 | df2$agegroup6==6),]
+
+df3<-df2[(df2$generalhealth==1 | df2$generalhealth==2 | df2$generalhealth==3 | 
+            df2$generalhealth==4 | df2$generalhealth==5),]
+
+df3<-df3[(df3$insuredgateway20==1 | df3$insuredgateway20==2),]
+
+df4<-df3[(df3$insured==1 | df3$insured==2),]
+
+df4<-df4[(df4$insure5==1 | df4$insure5==2 | df4$insure5==3 | 
+            df4$insure5==4 | df4$insure5==5),]
+
+df5<-df4[(df4$pcp20==1 | df4$pcp20==2),]
+
+df5<-df5[(df5$medplace==1 | df5$medplace==2 | df5$medplace==3 | 
+            df5$medplace==4 | df5$medplace==5 | df5$medplace==6
+            | df5$medplace==7),]
+
+df6<-df5[(df5$didntgetcare20==1 | df5$didntgetcare20==2),]
+
+df6<-df6[(df6$regularrx==1 | df6$regularrx==2),]
+
+final_data <- df6
+
