@@ -12,8 +12,8 @@ library(corrplot)
 
 # age, poverty, insurance, access to healthcare, immunizations
 data_flu <- select(data, agegroup6, imputed_povertygroup, 
-                             generalhealth, insuredgateway20, insured, insure5, pcp20,
-                             medplace, didntgetcare20, regularrx, fluvaccineshot)
+                   generalhealth, insuredgateway20, insured, insure5, pcp20,
+                   medplace, didntgetcare20, regularrx)
 
 
 data_check <- select(data, imputed_povertygroup, emp3)
@@ -34,25 +34,24 @@ data_flu$fluvaccineshot
 ## Chi-Squared Test ####
 
 # age: p value = 4.334091e-67
-t1 <- table(final_data$agegroup6, final_data$fluvaccineshot)
+t1 <- table(new_data$agegroup6, new_data$fluvaccineshot)
 chisq_result <- chisq.test(t1)
 chisq_result$p.value
+chisq_result
 # SIGNIFICANT
 
 
-# poverty: p value = 0.0001980559
-t2 <- table(final_data$imputed_povertygroup, final_data$fluvaccineshot)
+# imputed_povertygroup: p value = 0.0001980559
+t2 <- table(new_data$imputed_povertygroup, new_data$fluvaccineshot)
 chisq_result2 <- chisq.test(t2)
 chisq_result2$p.value
 # SIGNIFICANT
 
 
-# generalhealth: p value = 1.200925e-07
-t3 <- table(final_data$generalhealth, final_data$fluvaccineshot)
+# generalhealth: p value = 2.912482e-08
+t3 <- table(new_data$generalhealth, new_data$fluvaccineshot)
 chisq_result3 <- chisq.test(t3)
-fisher_test <- fisher.test(t3)
-
-fisher_test$p.value
+chisq_result3$p.value
 # SIGNIFICANT
 
 
@@ -100,6 +99,9 @@ t10 <- table(data$regularrx, data$fluvaccineshot)
 chisq_result10 <- chisq.test(t10)
 chisq_result10$p.value
 # SIGNIFICANT
+
+
+
 
 
 

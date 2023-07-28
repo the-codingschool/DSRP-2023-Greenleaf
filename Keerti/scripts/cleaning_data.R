@@ -25,8 +25,9 @@ data_immunizations <- select(data, agegroup, agegroup5, agegroup6, age21up, age2
                              takingmeds20, fluvaccineshot, whereflu20)
 
 
+
 # tile plot
-dataCors <- final_data |>
+dataCors <- data_immunizations |>
   cor() |>
   melt() |>
   as.data.frame()
@@ -44,7 +45,7 @@ plots + theme(axis.text.x = element_text(angle=90, hjust=1))
 # age, poverty, insurance, access to healthcare, immunizations
 df1 <- select(data, agegroup6, imputed_povertygroup, 
                    generalhealth, insuredgateway20, insured, insure5, pcp20,
-                   medplace, didntgetcare20, regularrx, fluvaccineshot)
+                   medplace, didntgetcare20, regularrx)
 
 df2<-df1[(df1$fluvaccineshot==1 | df1$fluvaccineshot==2),]
 
@@ -71,5 +72,5 @@ df6<-df5[(df5$didntgetcare20==1 | df5$didntgetcare20==2),]
 
 df6<-df6[(df6$regularrx==1 | df6$regularrx==2),]
 
-final_data <- df6
+new_data <- df6
 
