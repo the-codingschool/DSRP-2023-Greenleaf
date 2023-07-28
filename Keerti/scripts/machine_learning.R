@@ -84,19 +84,19 @@ results$boost_pred <- predict(boost_class_fit, test)$.pred_class
 results$forest_pred <- predict(forest_class_fit, test)$.pred_class
 
 
-## Logistic Regression F1: 0.6425 ####
+## Logistic Regression F1: 0.6721 ####
 results$actual <- factor(results$fluvaccineshot, levels = c("1","2"))
 results$pred_lp <- factor(results$log_pred, levels = c("1","2"))
 confusionMatrix(results$pred_lp, results$actual, mode = "everything", positive="1")
 
 
-## Boosted Trees F1: 0.6333 ####
+## Boosted Trees F1: 0.6595 ####
 results$actual <- factor(results$fluvaccineshot, levels = c("1","2"))
 results$pred_bp <- factor(results$boost_pred, levels = c("1","2"))
 confusionMatrix(results$pred_bp, results$actual, mode = "everything", positive="1")
 
 
-## Random Forest F1: 0.6256 ####
+## Random Forest F1: 0.6446 ####
 results$actual <- factor(results$fluvaccineshot, levels = c("1","2"))
 results$pred_fp <- factor(results$forest_pred, levels = c("1","2"))
 confusionMatrix(results$pred_fp, results$actual, mode = "everything", positive="1")
@@ -106,13 +106,8 @@ library("MLmetrics")
 
 
 F1_Score(as.numeric(results$actual), as.numeric(results$pred_lp))
-results$actual
-results$pred_lp
 F1_Score(as.numeric(results$actual), as.numeric(results$pred_bp))
 F1_Score(as.numeric(results$actual), as.numeric(results$pred_fp))
-
-mae(as.numeric(actual), as.numeric(pred_bp))
-results$pred_lp
 
 actual <- results$actual
 pred_lp <- results$pred_lp
