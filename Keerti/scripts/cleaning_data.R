@@ -44,8 +44,11 @@ plots + theme(axis.text.x = element_text(angle=90, hjust=1))
 
 # age, poverty, insurance, access to healthcare, immunizations
 df1 <- select(data, agegroup6, imputed_povertygroup, 
-                   generalhealth, insuredgateway20, insured, insure5, pcp20,
-                   medplace, didntgetcare20, regularrx)
+              generalhealth, insuredgateway20, insured, insure5, pcp20,
+              medplace, didntgetcare20, regularrx, 
+              toldhighbp20, mhtreat20_all,
+              smokecat, employment20, difficultdailyact, assistdevice,
+              fluvaccineshot)
 
 df2<-df1[(df1$fluvaccineshot==1 | df1$fluvaccineshot==2),]
 
@@ -72,5 +75,19 @@ df6<-df5[(df5$didntgetcare20==1 | df5$didntgetcare20==2),]
 
 df6<-df6[(df6$regularrx==1 | df6$regularrx==2),]
 
-new_data <- df6
+df7<-df6[(df6$toldhighbp20==1 | df6$toldhighbp20==2),]
 
+df7<-df7[(df7$mhtreat20_all==1 | df7$mhtreat20_all==2),]
+
+df8<-df7[(df7$smokecat==1 | df7$smokecat==2 | df7$smokecat==3
+          | df7$smokecat==4),]
+
+df8<-df8[(df8$employment20==1 | df8$employment20==2 | df8$employment20==3 | 
+            df8$employment20==4 | df8$employment20==5 | df8$employment20==6
+          | df8$employment20==7 | df8$employment20==8),]
+
+df9<-df8[(df8$difficultdailyact==1 | df8$difficultdailyact==2),]
+
+df9<-df9[(df9$assistdevice==1 | df9$assistdevice==2),]
+
+new_data <- df9
