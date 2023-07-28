@@ -13,7 +13,10 @@ library(corrplot)
 # age, poverty, insurance, access to healthcare, immunizations
 data_flu <- select(data, agegroup6, imputed_povertygroup, 
                    generalhealth, insuredgateway20, insured, insure5, pcp20,
-                   medplace, didntgetcare20, regularrx)
+                   medplace, didntgetcare20, regularrx, 
+                   toldhighbp20, mhtreat20_all,
+                   smokecat, employment20, difficultdailyact, assistdevice,
+                   fluvaccineshot)
 
 
 data_check <- select(data, imputed_povertygroup, emp3)
@@ -100,6 +103,45 @@ chisq_result10 <- chisq.test(t10)
 chisq_result10$p.value
 # SIGNIFICANT
 
+# toldhighbp20: p value = 9.00902e-38
+t11 <- table(data$toldhighbp20, data$fluvaccineshot)
+chisq_result11 <- chisq.test(t11)
+chisq_result11$p.value
+# SIGNIFICANT
+
+# mhtreat20_all: p value = 2.322162e-10
+t12 <- table(data$mhtreat20_all, data$fluvaccineshot)
+chisq_result12 <- chisq.test(t12)
+chisq_result12$p.value
+# SIGNIFICANT
+
+
+# smokecat: p value = 1.987408e-13
+t13 <- table(data$smokecat, data$fluvaccineshot)
+chisq_result13 <- chisq.test(t13)
+chisq_result13$p.value
+# SIGNIFICANT
+
+
+# employment20: p value = 5.198959e-47
+t14 <- table(data$employment20, data$fluvaccineshot)
+chisq_result14 <- chisq.test(t14)
+chisq_result14$p.value
+# SIGNIFICANT
+
+
+# difficultdailyact: p value = 4.548509e-11
+t15 <- table(data$difficultdailyact, data$fluvaccineshot)
+chisq_result15 <- chisq.test(t15)
+chisq_result15$p.value
+# SIGNIFICANT
+
+
+# assistdevice: p value = 6.070845e-17
+t16 <- table(data$assistdevice, data$fluvaccineshot)
+chisq_result16 <- chisq.test(t16)
+chisq_result16$p.value
+# SIGNIFICANT
 
 
 
