@@ -61,30 +61,41 @@ summary(log_fit$fit)
 
 
 # Boosted Tree ####
-boost_class_fit <- boost_tree() |>
+boost_fit <- boost_tree() |>
   set_engine("xgboost") |>
   set_mode("classification") |>
   fit(fluvaccineshot ~ ., data = train)
 
-summary(boost_class_fit$fit)
+summary(boost_fit$fit)
 
 
 # Random Forest #####
-forest_class_fit <- rand_forest() |>
+forest_fit <- rand_forest() |>
   set_engine("ranger") |>
   set_mode("classification") |>
   fit(fluvaccineshot ~ ., data = train)
 
-forest_class_fit$fit
+forest_fit$fit
 
 
-# K-Nearest Neighbours ####
-target_category <- train[,15]
-test_category <- test[,15]
-knn_model <- knn(train,test,cl=target_category,k=13)
+# K-Nearest Neighbors ####
+train_scale <- scale(train[, 1:14])
+test_scale <- scale(test[, 1:14])
+
+classifier_knn <- knn(train = train_scale,
+                      test = test_scale,
+                      cl = train$fluvaccineshot,
+                      k = 25)
 
 
 # Support Vector Machine ####
+library(e1071)
+classifier <- svm(fluvaccineshot ~ .,
+                 data = train,
+                 type = 'C-classification',
+                 kernel = 'polynomial',
+                 scale = FALSE)
+
 
 
 # Error Evaluation ####
@@ -92,8 +103,8 @@ knn_model <- knn(train,test,cl=target_category,k=13)
 results <- test
 
 results$log_pred <- predict(log_fit,test)$.pred_class
-results$boost_pred <- predict(boost_class_fit, test)$.pred_class
-results$forest_pred <- predict(forest_class_fit, test)$.pred_class
+results$boost_pred <- predict(boost_fit, test)$.pred_class
+results$forest_pred <- predict(forest_fit, test)$.pred_class
 
 actual <- results$actual
 pred_lp <- results$pred_lp
@@ -135,12 +146,16 @@ errors
 # 3 0.3885035 0.6233005    randForest
 
 
-## KNN Accuracy: 95.63925% ####
-conf_matrix <- table(knn_model,test_category)
-accuracy <- function(x){sum(diag(x)/(sum(rowSums(x)))) * 100}
+## KNN Accuracy: 62.98% ####
+conf_matrix <- table(test$fluvaccineshot, classifier_knn)
+conf_matrix
 accuracy(conf_matrix)
 
 
-
-
+## SVM Accuracy: 63.08% ####
+pred_svm <- predict(classifier, test)
+mean(pred_svm == test$fluvaccineshot)
+svm_conf_matrix <- table(test$fluvaccineshot, pred_svm)
+svm_conf_matrix
+accuracy(svm_conf_matrix)
 

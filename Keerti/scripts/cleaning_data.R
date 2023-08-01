@@ -24,10 +24,8 @@ data_immunizations <- select(data, agegroup, agegroup5, agegroup6, age21up, age2
                              medplace, didntgetcare20, regularrx, skiprxcost,toldprescription20,
                              takingmeds20, fluvaccineshot, whereflu20)
 
-
-
 # tile plot
-dataCors <- data_immunizations |>
+dataCors <- df_immunizations |>
   cor() |>
   melt() |>
   as.data.frame()
@@ -35,7 +33,8 @@ dataCors <- data_immunizations |>
 plots <- ggplot(dataCors, aes(x = Var1, y = Var2, fill = value)) +
    geom_tile() +
    scale_fill_gradient2(low = "red", high = "blue", mid = "white",
-                        midpoint = 0)
+                        midpoint = 0) +
+  labs(x="Variables",y="Variables",title="Correlation between variables") 
 
 plots + theme(axis.text.x = element_text(angle=90, hjust=1))
 
