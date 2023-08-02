@@ -16,6 +16,23 @@ data$toohighblsugar <- as.numeric(gsub("\\00:00:0","",data$toohighblsugar))
 data$toohighblsugar[is.na(data$toohighblsugar)] <- mean(data$toohighblsugar,na.rm=TRUE)
 data$toohighblsugar <- round(data$toohighblsugar, digits = 1)
 
+# tile plot of all variables
+dataCors <- data |>
+  cor() |>
+  melt() |>
+  as.data.frame()
+
+plots <- ggplot(dataCors, aes(x = Var1, y = Var2, fill = value)) +
+  geom_tile() +
+  scale_fill_gradient2(low = "red", high = "blue", mid = "white",
+                       midpoint = 0) +
+  labs(x="Variables",y="Variables",title="Correlation between all variables") 
+
+plots + theme(axis.text.x = element_text(angle=90, hjust=1),
+              text = element_text(size = 4),
+              axis.title = element_text(size = 10),
+              plot.title = element_text(size = 20))
+
 # age, poverty, insurance, access to healthcare, immunizations
 data_immunizations <- select(data, agegroup, agegroup5, agegroup6, age21up, age25up, age40new,
                              age45up, age50up, age18_64, imputed_neighpovgroup4_1519,
@@ -24,8 +41,9 @@ data_immunizations <- select(data, agegroup, agegroup5, agegroup6, age21up, age2
                              medplace, didntgetcare20, regularrx, skiprxcost,toldprescription20,
                              takingmeds20, fluvaccineshot, whereflu20)
 
-# tile plot
-dataCors <- df_immunizations |>
+
+# tile plot of chosen variables
+dataCors <- data_immunizations |>
   cor() |>
   melt() |>
   as.data.frame()
@@ -34,10 +52,9 @@ plots <- ggplot(dataCors, aes(x = Var1, y = Var2, fill = value)) +
    geom_tile() +
    scale_fill_gradient2(low = "red", high = "blue", mid = "white",
                         midpoint = 0) +
-  labs(x="Variables",y="Variables",title="Correlation between variables") 
+  labs(x="Variables",y="Variables",title="Correlation between chosen variables") 
 
 plots + theme(axis.text.x = element_text(angle=90, hjust=1))
-
 
 
 

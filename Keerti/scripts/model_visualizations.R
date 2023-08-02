@@ -46,5 +46,16 @@ ggplot(df_accuracy,aes(x=name,y=value,fill=n_comp,
 
 
 
+# variety of dark colors
+# values=c("#D27685",
+#          "#F9E2AF",
+#          "#210062",
+#          "#009FBD",
+#          "#77037B")
 
-
+# shades of blue
+# values=c("#073748",
+#          "#0B666A",
+#          "#35A29F",
+#          "#64CCC5",
+#          "#DAFFFB")
