@@ -143,7 +143,25 @@ chisq_result16 <- chisq.test(t16)
 chisq_result16$p.value
 # SIGNIFICANT
 
+# plotting chi-sqaured test p-values
+var_name <- c('agegroup6', 'imputed_povertygroup', 
+'generalhealth', 'insuredgateway20', 'insured', 'insure5', 'pcp20',
+'medplace', 'didntgetcare20', 'regularrx', 'toldhighbp20', 'mhtreat20_all',
+'smokecat', 'employment20', 'difficultdailyact', 'assistdevice')
+p_value <- c(4.334091e-67, 0.0001980559, 2.912482e-08, 2.171387e-28, 
+             1.361778e-30, 1.704919e-48, 3.54575e-79, 3.279108e-30, 
+             0.2095622, 3.043354e-105, 9.00902e-38, 2.322162e-10, 
+             1.987408e-13, 5.198959e-47, 4.548509e-11, 6.070845e-17)
 
+df_pvalue <- data.frame(var_name, p_value)
+
+ggplot(data = df_pvalue, aes(x = var_name, y = p_value)) +
+  geom_bar(stat = "summary",
+           fun = "mean", color = "#8CC0DE", fill = "#8CC0DE") +
+  labs(x="Variable", y="P-Value", 
+       title="Chi-Squared Test Results") +
+  theme(axis.text.x = element_text(angle=90, hjust=1)) +
+  geom_hline(yintercept=0.05, linetype="dashed", color = "red", size = 1)
 
 
 
