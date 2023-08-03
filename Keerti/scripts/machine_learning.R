@@ -147,15 +147,11 @@ errors
 
 
 ## KNN Accuracy: 62.98% ####
-conf_matrix <- table(test$fluvaccineshot, classifier_knn)
-conf_matrix
-accuracy(conf_matrix)
-
+confusionMatrix(classifier_knn, actual, mode = "everything", positive="1")
 
 ## SVM Accuracy: 63.08% ####
 pred_svm <- predict(classifier, test)
 mean(pred_svm == test$fluvaccineshot)
-svm_conf_matrix <- table(test$fluvaccineshot, pred_svm)
-svm_conf_matrix
-accuracy(svm_conf_matrix)
+confusionMatrix(pred_svm, actual, mode = "everything", positive="1")
+
 
