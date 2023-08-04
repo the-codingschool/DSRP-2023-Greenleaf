@@ -31,9 +31,17 @@ smokingdata <- select(data, imputed_povertygroup, imputed_povgroup3,
 alcoholdata <- select(data, imputed_povertygroup, drinker, daysalc30, averagedrink20, heavydrink20, bingenew)
 data_suicide <- select(data, imputed_povertygroup,
                        ipvphy, insultipv, lowinchousing20, delaypayrent, rodentsstreet)
-mentalhealthdata <- select(data, imputed_povertygroup, imputed_povgroup3, 
-                           imputed_pov200, mood1, mood2, mood3, mood4, mood5,
-                           mood6, mood8, mood9, mood11)
+
+filter(healthdata2, agegroup == "3")
+mentalhealth <- filter(healthdata2, mood1 == "1", mood1 == "2", mood2 == "1",
+                       mood2 == "2", mood3 == "1", mood3 == "2", mood4 == "1",
+                       mood5 == "1", mood5 == "2", mood6 == "1", mood6 == "2")
+filter(healthdata2, mood1 == "1", mood1 == "2", mood2 == "1",
+                    mood2 == "2", mood3 == "1", mood3 == "2", mood4 == "1",
+                    mood5 == "1", mood5 == "2", mood6 == "1", mood6 == "2",
+                    imputed_povertygroup == "3", imputed_povertygroup == "4")
+mentalhealthdata <- select(data, imputed_neighpovgroup4_1519, mood1, mood2, 
+                           mood3, mood4, mood5, mood6)
 dataCors <- mentalhealthdata |> 
   cor() |>
   melt() |>
