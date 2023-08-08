@@ -1,0 +1,567 @@
+# Chi-Squared Tests
+
+```{r}
+
+```
+
+```{r}
+#Part 2
+
+#ANOVA
+
+#null: the average stream rate of albums are significantly higher than that of singles and compilations on the top charts
+
+#alternative hypothesis: the average stream rate of albums aren't significantly higher than that of singles and compilations on the top charts
+
+
+anova_results <- aov(data = clean_demo_asthma, everasthma ~ agegroup6)
+
+##are any groups different from each other
+summary(anova_results)
+
+#which ones?
+TukeyHSD(anova_results)
+
+
+
+
+#Final pick
+#top 3 albums with the most song entries on the chart. This one is best because a single album can chart multiple times for diffrent songs on the album. Now, I can analyze the top 3 albums with the most song entries on the chart and have more variary which possible tests that I run.
+
+Top_Album <- top_10_artists |>
+  summarize(.by = Album,
+            count = sum(!is.na(Artist))) |>
+  slice_max(count, n = 3, with_ties = F)
+
+
+#the stats of songs on the ablum in descending order by stream count
+
+Album_stats <- filter(top_10_artists, Album == "Greatest Hits" | Album == "Hamilton (Original Broadway Cast Recording)" | Album == "Rebelde")
+
+
+a <- aov(Stream ~ Album_type, Album_stats)
+summary(a)
+TukeyHSD(a)
+
+
+
+```
+
+### (1) Chi-Squared Tests - Poverty line
+
+```{r}
+
+
+library(tidyr)
+library(janitor)
+library(dplyr)
+library(ggplot2)
+library(corrplot)
+data <- read.csv("data/chs2020_public.csv")
+
+
+#null: Placement on the poverty line, Household Federal poverty line/poverty rate, and ones birth place does not significantly determine affect wheather or not they have asthma 
+
+#alternative hypothesis: Placement on the poverty line, Household Federal poverty line/poverty rate, and ones birth place does significantly determine affect wheather or not they have asthma 
+
+
+#Variables
+Tdemo_asthma <- select(data, agegroup6, birthsex, newrace6_b, usborn,
+                       maritalstatus20, education, child, employment20,
+                       emp3, imputed_povertygroup, imputed_povgroup3, imputed_neighpovgroup4_1519,
+                       everasthma, currentasthma20, stillasthmaall)
+
+clean_Tdemo_asthma <- na.omit(Tdemo_asthma)
+
+#Chi-Squared Tests
+
+
+#Results - P-value = 4.216184e-06 -- Significant 
+Table <- table(clean_Tdemo_asthma$imputed_neighpovgroup4_1519, clean_Tdemo_asthma$everasthma)
+
+chi_results <- chisq.test(Table)
+chi_results$p.value
+c1 <- chi_results$residuals
+#plot
+corrplot(c1, is.corr = F)
+
+
+#Results - P-value = 2.597664e-06 -- Significant 
+Table2 <- table(clean_Tdemo_asthma$imputed_povertygroup, clean_Tdemo_asthma$everasthma)
+chi_results <- chisq.test(Table2)
+chi_results$p.value
+c2 <- chi_results$residuals
+#plot
+corrplot(c2, is.corr = F)
+
+
+#Results - P-value = 5.486352e-44 -- Significant 
+Table3 <- table(clean_Tdemo_asthma$usborn, clean_Tdemo_asthma$everasthma)
+
+chi_results <- chisq.test(Table3)
+chi_results$p.value
+c3<- chi_results$residuals
+#plot
+corrplot(c3, is.corr = F)
+
+
+
+
+
+#CHI-SQUARED PT 2
+
+
+#null: Placement on the poverty line, poverty rate, and ones birth place does not significantly determine affect wheather or not a newyorker STILL has asthma 
+
+#alternative hypothesis: Placement on the poverty line, poverty rate, and ones birth place does significantly determine affect wheather or not a newyorker STILL has asthma 
+
+
+#Variables
+
+Tdemo_asthma <- select(data, agegroup6, birthsex, newrace6_b, usborn,
+                       maritalstatus20, education, child, employment20,
+                       emp3, imputed_povertygroup, imputed_povgroup3, imputed_neighpovgroup4_1519,
+                       everasthma, currentasthma20, stillasthmaall)
+
+clean_Tdemo_asthma <- na.omit(Tdemo_asthma)
+
+still_asthma <- clean_Tdemo_asthma|> filter(stillasthmaall == "1")
+
+
+
+#Chi-Squared Tests
+
+
+#Results - P-value = 9.799256e-21 -- Significant 
+Table4 <- table(still_asthma$imputed_neighpovgroup4_1519, still_asthma$stillasthmaall)
+
+chi_results <- chisq.test(Table4)
+chi_results$p.value
+c4 <- chi_results$residuals
+#plot
+corrplot(c4, is.corr = F)
+
+
+#Results - P-value = 2.56599e-17 -- Significant 
+Table5 <- table(still_asthma$imputed_povertygroup, still_asthma$stillasthmaall)
+chi_results <- chisq.test(Table5)
+chi_results$p.value
+c5 <- chi_results$residuals
+#plot
+corrplot(c5, is.corr = F)
+
+
+#Results - P-value = 2.93614e-39 -- Significant 
+Table6 <- table(still_asthma$usborn, still_asthma$stillasthmaall)
+chi_results <- chisq.test(Table6)
+chi_results$p.value
+c6 <- chi_results$residuals
+#plot
+corrplot(c6, is.corr = F)
+
+
+
+
+
+
+```
+
+### (2) Chi-Squared Tests - Living conditions
+
+```{r}
+
+library(tidyr)
+library(janitor)
+library(dplyr)
+library(ggplot2)
+library(corrplot)
+data <- read.csv("data/chs2020_public.csv")
+
+
+
+#null: The enviornmental living conditions of a New York citizen does not significantlly determine wheather or not a New Yorker has asthma (mice, neighborhood interactions)
+
+#alternative hypothesis: The enviornmental living conditions of a New York citizen does significantlly determine wheather or not a New Yorker has asthma (mice, neighborhood interactions)
+
+
+#Variables
+envi_asthma <- select(data, agegroup6, birthsex, newrace6_b, usborn,
+                       maritalstatus20, education, child, employment20,
+                       emp3, imputed_povertygroup, imputed_povgroup3, imputed_neighpovgroup4_1519,
+                       everasthma, currentasthma20, stillasthmaall, rodentsstreet, 
+                      helpneighbors20_q1, discussissues, helpcommproj, trustkeys)
+
+clean_envi_asthma <- na.omit(envi_asthma)
+
+
+#Chi-Squared Tests
+
+#Results - P-value = 0.0183156 -- Significant 
+t1 <- table(clean_envi_asthma$rodentsstreet, clean_envi_asthma$everasthma)
+
+chi_results <- chisq.test(t1)
+chi_results$p.value
+c1 <- chi_results$residuals
+#plot
+corrplot(c1, is.corr = F)
+
+
+#Results - P-value = 0.2826679 -- Not Significant 
+t2 <- table(clean_envi_asthma$helpneighbors20_q1, clean_envi_asthma$everasthma)
+chi_results <- chisq.test(t2)
+chi_results$p.value
+c2 <- chi_results$residuals
+#plot
+corrplot(c2, is.corr = F)
+
+
+
+#Results - P-value = 0.1111788 -- Not Significant 
+t3 <- table(clean_envi_asthma$discussissues, clean_envi_asthma$everasthma)
+
+chi_results <- chisq.test(t3)
+chi_results$p.value
+c3<- chi_results$residuals
+#plot
+corrplot(c3, is.corr = F)
+
+
+#Results - P-value = 0.3042556 -- Not Significant 
+t4 <- table(clean_envi_asthma$helpcommproj, clean_envi_asthma$everasthma)
+
+chi_results <- chisq.test(t4)
+chi_results$p.value
+c4 <- chi_results$residuals
+#plot
+corrplot(c4, is.corr = F)
+
+
+#Results - P-value = 0.04847091 -- Significant 
+t5 <- table(clean_envi_asthma$trustkeys, clean_envi_asthma$everasthma)
+
+chi_results <- chisq.test(t5)
+chi_results$p.value
+c5 <- chi_results$residuals
+#plot
+corrplot(c5, is.corr = F)
+
+
+
+
+
+#CHI-SQUARED PT 2
+
+
+#null: The enviornmental living conditions of a New York citizen does not significantlly determine wheather or not a New Yorker STILL has asthma (mice, neighborhood interactions)
+
+#alternative hypothesis: The enviornmental living conditions of a New York citizen does not significantlly determine wheather or not a New Yorker STILL has asthma (mice, neighborhood interactions) 
+
+
+#Variables
+
+envi_asthma <- select(data, agegroup6, birthsex, newrace6_b, usborn,
+                       maritalstatus20, education, child, employment20,
+                       emp3, imputed_povertygroup, imputed_povgroup3, imputed_neighpovgroup4_1519,
+                       everasthma, currentasthma20, stillasthmaall, rodentsstreet, 
+                      helpneighbors20_q1, discussissues, helpcommproj, trustkeys)
+
+clean_envi_asthma <- na.omit(envi_asthma)
+
+still_asthma <- clean_envi_asthma|> filter(stillasthmaall == "1")
+
+
+#Chi-Squared Tests
+
+
+#Results - P-value = 0.004131 -- Significant 
+T1 <- table(still_asthma$rodentsstreet, still_asthma$stillasthmaall)
+
+chi_results <- chisq.test(T1)
+chi_results$p.value
+C1 <- chi_results$residuals
+#plot
+corrplot(C1, is.corr = F)
+
+
+#Results - P-value = 8.775508e-50 -- Significant 
+T2 <- table(still_asthma$helpneighbors20_q1, still_asthma$stillasthmaall)
+chi_results <- chisq.test(T2)
+chi_results$p.value
+C2 <- chi_results$residuals
+#plot
+corrplot(C2, is.corr = F)
+
+
+#Results - P-value = 3.52164e-18 -- Significant 
+T3 <- table(still_asthma$discussissues, still_asthma$stillasthmaall)
+chi_results <- chisq.test(T3)
+chi_results$p.value
+C3<- chi_results$residuals
+#plot
+corrplot(C3, is.corr = F)
+
+
+#Results - P-value = 5.744945e-08 -- Significant 
+T4 <- table(still_asthma$helpcommproj, still_asthma$stillasthmaall)
+chi_results <- chisq.test(T4)
+chi_results$p.value
+C4<- chi_results$residuals
+#plot
+corrplot(C4, is.corr = F)
+
+
+#Results - P-value = 9.166917e-31 -- Significant 
+T5 <- table(still_asthma$trustkeys, still_asthma$stillasthmaall)
+chi_results <- chisq.test(T5)
+chi_results$p.value
+C5 <- chi_results$residuals
+#plot
+corrplot(C5, is.corr = F)
+
+```
+
+### (2.1) Chi-Squared Tests - Living conditions
+
+```{r}
+
+#Selecting specifically for people who answered yes to everasthma
+
+library(tidyr)
+library(janitor)
+library(dplyr)
+library(ggplot2)
+library(corrplot)
+data <- read.csv("data/chs2020_public.csv")
+
+
+#null: The enviornmental living conditions of a New York citizen does not significantlly determine wheather or not a New Yorker has asthma (mice, neighborhood interactions)
+
+#alternative hypothesis: The enviornmental living conditions of a New York citizen does significantlly determine wheather or not a New Yorker has asthma (mice, neighborhood interactions)
+
+
+#Variables
+envi_asthma <- select(data, agegroup6, birthsex, newrace6_b, usborn,
+                       maritalstatus20, education, child, employment20,
+                       emp3, imputed_povertygroup, imputed_povgroup3, imputed_neighpovgroup4_1519,
+                       everasthma, currentasthma20, stillasthmaall, rodentsstreet, 
+                      helpneighbors20_q1, discussissues, helpcommproj, trustkeys)
+
+clean_envi_asthma <- na.omit(envi_asthma)
+
+yes_asthma <- clean_envi_asthma|> filter(everasthma == "1")
+
+
+#Chi-Squared Tests
+
+#Results - P-value = 1.991656e-05 -- Significant 
+table1 <- table(yes_asthma$rodentsstreet, yes_asthma$everasthma)
+
+chi_results <- chisq.test(table1)
+chi_results$p.value
+c1 <- chi_results$residuals
+#plot
+corrplot(c1, is.corr = F)
+
+
+#Results - P-value = 1.615592e-73 -- Significant 
+table2 <- table(yes_asthma$helpneighbors20_q1, yes_asthma$everasthma)
+chi_results <- chisq.test(table2)
+chi_results$p.value
+C2 <- chi_results$residuals
+#plot
+corrplot(C2, is.corr = F)
+
+
+#Results - P-value = 3.953331e-24 -- Significant 
+table3 <- table(yes_asthma$discussissues, yes_asthma$everasthma)
+
+chi_results <- chisq.test(table3)
+chi_results$p.value
+C3<- chi_results$residuals
+#plot
+corrplot(C3, is.corr = F)
+
+
+#Results - P-value = 1.525235e-16 -- Significant 
+table4 <- table(yes_asthma$helpcommproj, yes_asthma$everasthma)
+
+chi_results <- chisq.test(table4)
+chi_results$p.value
+C4<- chi_results$residuals
+#plot
+corrplot(C4, is.corr = F)
+
+
+#Results - P-value = 0 -- Not Significant (Warning: Chi-squared approximation may be incorrect) This could be because this is an opinion based question
+table5 <- table(yes_asthma$trustkeys, yes_asthma$trustkeys)
+
+chi_results <- chisq.test(table5)
+chi_results$p.value
+C5 <- chi_results$residuals
+#plot
+corrplot(C5, is.corr = F)
+
+
+```
+
+### (3) Chi-Squared Tests - Socioeconomic status
+
+```{r}
+
+library(tidyr)
+library(janitor)
+library(dplyr)
+library(ggplot2)
+library(corrplot)
+data <- read.csv("data/chs2020_public.csv")
+
+
+#null: The the socioeconomic status of a New York citizen does not significantlly determine wheather or not a New Yorker has asthma (education, FPL, Occupation)
+
+#alternative hypothesis: The the socioeconomic status of a New York citizen does significantlly determine wheather or not a New Yorker has asthma (education, FPL, Occupation)
+
+
+#Variables
+envi_asthma <- select(data, agegroup6, birthsex, newrace6_b, usborn,
+                       maritalstatus20, education, child, employment20,
+                       emp3, imputed_povertygroup, imputed_povgroup3, imputed_neighpovgroup4_1519,
+                       everasthma, currentasthma20, stillasthmaall, rodentsstreet, 
+                      helpneighbors20_q1, discussissues, helpcommproj, trustkeys)
+
+clean_envi_asthma <- na.omit(envi_asthma)
+
+
+#Chi-Squared Tests
+
+#Results - P-value = 0.1402969 -- Not Significant 
+t1 <- table(clean_envi_asthma$education, clean_envi_asthma$currentasthma20)
+
+chi_results <- chisq.test(t1)
+chi_results$p.value
+c1 <- chi_results$residuals
+#plot
+corrplot(c1, is.corr = F)
+
+
+#Results - P-value = 0.151808 --  Not Significant 
+t2 <- table(clean_envi_asthma$emp3, clean_envi_asthma$currentasthma20)
+chi_results <- chisq.test(t2)
+chi_results$p.value
+c2 <- chi_results$residuals
+#plot
+corrplot(c2, is.corr = F)
+
+
+#Results - P-value = 2.108646e-05 -- Significant 
+t3 <- table(clean_envi_asthma$imputed_neighpovgroup4_1519, clean_envi_asthma$currentasthma20)
+
+chi_results <- chisq.test(t3)
+chi_results$p.value
+c3<- chi_results$residuals
+#plot
+corrplot(c3, is.corr = F)
+
+
+
+#Results - P-value = 0.1093068 -- Not Significant 
+t4 <- table(clean_envi_asthma$imputed_povertygroup, clean_envi_asthma$currentasthma20)
+
+chi_results <- chisq.test(t4)
+chi_results$p.value
+c4 <- chi_results$residuals
+#plot
+corrplot(c4, is.corr = F)
+
+
+
+
+
+
+
+#CHI-SQUARED PT 2
+
+
+#null: The the socioeconomic status of a New York citizen does not significantlly determine wheather or not a New Yorker STILL has asthma (education, FPL, Occupation)
+
+#alternative hypothesis: The the socioeconomic status of a New York citizen does significantlly determine wheather or not a New Yorker STILL has asthma (education, FPL, Occupation)
+ 
+
+
+#Variables
+
+envi_asthma <- select(data, agegroup6, birthsex, newrace6_b, usborn,
+                       maritalstatus20, education, child, employment20,
+                       emp3, imputed_povertygroup, imputed_povgroup3, imputed_neighpovgroup4_1519,
+                       everasthma, currentasthma20, stillasthmaall, rodentsstreet, 
+                      helpneighbors20_q1, discussissues, helpcommproj, trustkeys)
+
+clean_envi_asthma <- na.omit(envi_asthma)
+
+still_asthma <- clean_envi_asthma|> filter(stillasthmaall == "1")
+
+
+#Chi-Squared Tests
+
+
+#Results - P-value = 0.0005139233 -- Significant 
+T1 <- table(clean_envi_asthma$education, clean_envi_asthma$stillasthmaall)
+
+chi_results <- chisq.test(T1)
+chi_results$p.value
+C1 <- chi_results$residuals
+#plot
+corrplot(C1, is.corr = F)
+
+
+#Results - P-value = 9.502669e-07 -- Significant 
+T2 <- table(clean_envi_asthma$emp3, clean_envi_asthma$stillasthmaall)
+chi_results <- chisq.test(T2)
+chi_results$p.value
+C2 <- chi_results$residuals
+#plot
+corrplot(C2, is.corr = F)
+
+
+#Results - P-value = 9.502669e-07 -- Significant 
+T3 <- table(clean_envi_asthma$imputed_neighpovgroup4_1519, clean_envi_asthma$stillasthmaall)
+chi_results <- chisq.test(T3)
+chi_results$p.value
+C3<- chi_results$residuals
+#plot
+corrplot(C3, is.corr = F)
+
+
+#Results - P-value = 4.438088e-06 -- Significant 
+T4 <- table(clean_envi_asthma$imputed_povertygroup, clean_envi_asthma$stillasthmaall)
+chi_results <- chisq.test(T4)
+chi_results$p.value
+C4<- chi_results$residuals
+#plot
+corrplot(C4, is.corr = F)
+
+
+```
+
+```{r}
+library(tidyverse)
+library(tidymodels)
+library(dplyr)
+library(ggplot2)
+data <- read.csv("data/chs2020_public.csv")
+
+ggplot(clean_demo_asthma$agegroup6, geom = "histogram")
+
+
+
+ggplot(clean_demo_asthma$agegroup6) +
+  geom_histogram() +
+  theme_minimal()
+
+ggplot(data = clean_demo_asthma, aes(x = agegroup6)) +
+  geom_histogram(fill = "lightblue")
+
+t.test(clean_demo_asthma$agegroup6, mu = 4)
+
+
+
+```
