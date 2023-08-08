@@ -1,0 +1,888 @@
+---
+---
+---
+
+# Do High Asthma Rates Correlate with Poor Neighborhood Health in High Poverty Neighborhoods?
+
+### Princess-Awa Diakhite
+
+**Research question**: Are there any correlations between the location of health disparities in NYC and the prevalence of asthma in those areas?
+
+## Abstract:
+
+Asthma is the most prevalent chronic disease among children in New York City, and New York City has some of the highest asthma rates in the country, with certain communities being disproportionately affected. As someone who lives about 15 minutes from the city, my goal is to figure out if there are any correlations between the location of health disparities in NYC and the prevalence of asthma in those areas.
+
+Within my dataset there are three helpful asthma variables which are: Everasthma, currentasthma20, stillasthmaall. As my research focuses on asthma, I analyzed the individuals who answered "yes" to these questions. Even though the percentages may not seem like a large number, the sample size of the survey is 8,781 individuals, so even within these lesser percentages there are hundreds of people. By analyzing the distribution of people on the federal poverty line and their household income, we can determine if more people with asthma tend to reside in areas of high poverty, proving that asthma rates are correlated with the health of a neighborhood.
+
+To begin, I created various tile correlation charts to visualize how each variable was correlated with the others, creating additional correlation graphs with fewer variables to determine which variables exhibited strong correlations. To determine the relevant factors of neighborhood health within my dataset, I conducted numerous chi-squared tests and t-tests to determine how the asthma variables correlate with others. I found that neighborhood health and a person's position on the poverty line were the most accurate predictors of whether or not they have asthma. In order to test if the environmental factors were significant in predicting whether or not someone has asthma, I ran many regression machine learning models. Among the three models I tested, the one with the lowest mean absolute error and root mean square error was a liner regression. Overall, I did not find a clear distinction between the presence of asthma and asthma attacks among New Yorkers and their environment. I believe that the fact that I had to infer many of the variables had a significant impact on the results I collected.  If I had had access to additional variables, my findings would likely have been drastically different. However, based on my data, it is too unreasonable  to conclude that asthma prevalence is significantly higher in high-poverty neighborhoods due to poorer neighborhood health and less access to appropriate healthcare.
+
+## Background
+
+Asthma is the most prevalent chronic disease among children in New York City, and New York City has some of the highest asthma rates in the country, with certain communities being disproportionately affected. As someone who comes from a low-income family and has family members who live in different parts of New York City and belong to different social classes, I've noticed various connections between asthma and where family members reside. This personal observation and my general knowledge of asthma rates in New York City sparked my interest in investigating and focusing on the correlations between neighborhood health and asthma in New York City.
+
+I find it incredibly important to focus on asthma related health issues as many people can go a majority of their life chalking up their asthma related symptoms to allergies. Asthma is still a chronic condition that can have a significant impact on a person's quality of life, especially if they live in New York City, where high levels of air pollution and crowded neighborhoods make it possible for asthma symptoms to go unnoticed. By addressing the correlations between asthma-related health issues and social factors, we can help the residents of New York City prioritize their health without compromising other aspects of their lives by encouraging more healthcare providers to implement asthma-related projects in the city.
+
+## Hypothesis
+
+My hypothesis for this study is that asthma prevalence is significantly higher in high-poverty neighborhoods due to poorer neighborhood health and less access to appropriate healthcare.
+
+### Variables
+
+Within my data set there are three helpful asthma variables which are:
+
+everasthma, currentasthma20, stillasthmaall
+
+```{r Pie Chart - Everasthma, echo=FALSE, message=FALSE, warning=FALSE}
+library(tidymodels)
+library(dplyr)
+library(reshape2)
+library(rsample)
+library(Metrics)
+library(parsnip)
+library(yardstick)
+library(ggplot2)
+library(tidyverse)
+library(tidyr)
+library(tidyselect)
+library(imputeTS)
+library(RColorBrewer)
+library(parsnip)
+library(xgboost)
+library(ranger)
+library(plotrix)
+library(ggpubr)
+library(readr)
+#Pie Chart for Everasthma
+
+data <- read_csv("C:/Users/Cheryl/OneDrive/Desktop/DSRP-2023-Greenleaf/DSRP-2023-Greenleaf/data/chs2020_public.csv")
+
+asthma_data <- select(data, everasthma, currentasthma20, stillasthmaall)
+
+#removing NA's
+clean_asthma <- na.omit(asthma_data)
+
+#everasthma
+Tableever <- table(clean_asthma$everasthma)
+row.names(Tableever) <- c("Yes", "No")
+ever_distribution <- round(Tableever/8781*100)
+names <- paste(names(Tableever), "-", ever_distribution, "%", sep = " ")
+
+
+pie3D(Tableever, main = "everasthma
+      Have you ever been told by a
+doctor, nurse or other health
+professional that you had asthma?", labels = names, col = c("lightpink","cornsilk"), border = "white", radius = 1 )
+
+```
+
+```{r echo=FALSE}
+
+#Pie Chart for Currentasthma20
+#data <- read.csv("data/chs2020_public.csv")
+
+asthma_data <- select(data, everasthma, currentasthma20, stillasthmaall)
+
+#removing NA's
+clean_asthma <- na.omit(asthma_data)
+
+#currentasthma20
+Tablecurrent <- table(clean_asthma$currentasthma20)
+row.names(Tablecurrent) <- c("Yes", "No")
+current_distribution <- round(Tablecurrent/8781*100)
+names <- paste(names(Tablecurrent), "-", current_distribution, "%", sep = " ")
+
+pie3D(Tablecurrent, main = "currentasthma20
+      In the last 12 months, have you
+had an episode of asthma or an
+asthma attack?", labels = names, col = c("lightpink","cornsilk"), border = "white", radius = 1 )
+
+```
+
+```{r echo=FALSE}
+echo = F
+#Pie Chart for stillasthmaall
+#data <- read.csv("data/chs2020_public.csv")
+
+asthma_data <- select(data, everasthma, currentasthma20, stillasthmaall)
+
+#removing NA's
+clean_asthma <- na.omit(asthma_data)
+
+#stillasthmaall
+Tablestill <- table(clean_asthma$stillasthmaall)
+row.names(Tablestill) <- c("Yes", "No")
+still_distribution <- round(Tablestill/8781*100)
+names <- paste(names(Tablestill), "-", still_distribution, "%", sep = " ")
+
+pie3D(Tablestill, main = "stillasthmaall
+      Do you still have asthma? Among
+all adults.", labels = names, col = c("lightpink","cornsilk"), border = "white", radius = 1 )
+
+
+
+```
+
+As my research focuses on asthma, I analyzed the individuals who answered "yes" to these questions. Even though the percentages may not seem like a large number, the sample size of the survey is 8,781 individuals, so even within these lesser percentages there are hundreds of people.
+
+Due to data usage agreements, my team did not have access to many variables, such as borough and precise neighborhood of surveyors, so I had to infer the general area of surveyors based on the health values of neighborhoods. In essence, if individuals reported lower levels of neighborhood health based on the variables, it could be assumed that they are from a high poverty area in New York City.
+
+To account for neighborhood health, I used factors such as:
+
+**imputed_neighpovgroup4_1519** - Neighborhood poverty; percent of zip code population living below 100% FPL per American Community Survey
+
+**imputed_povertygroup** - Household annual income from all sources; imputed for those with missing data for povertygroup
+
+Living conditions:
+
+**rodentsstreet - At any time in the last 90 days have you seen any mice or rats or signs of mice or rats on the street where you live?**
+
+**helpneighbors20_q1** - Do you feel that people in your neighborhood are willing to help their neighbors?
+
+**discussissues** - Would you say that you get together with people in your neighborhood to discuss common political and social issues happening in your community?
+
+**helpcommproj** - Would you say that you contribute to community projects or events such as organizing block parties, helping at a community center, garden, or school fundraisers
+
+People's interactions with their neighborhood may not appear to be pertinent to asthma, but they are, as neighborhoods flourish on connections and local organizations that bring residents together for the betterment of the area. 
+
+As the federal poverty line is a yearly issued measure of income from the Department of Health and Human Services (HHS), the imputed variables are useful for indicating neighborhood poverty levels. The federal poverty level is used to determine eligibility for certain programs and benefits, including discounts on health insurance through the Marketplace, Medicaid, and CHIP coverage. 
+
+According to research conducted by Columbia University's Center for Children's Environmental Health, high-poverty individuals tend to reside in low-income neighborhoods with a low standard of environmental health, meaning they are exposed to a disproportionate amount of pollution sources, such as diesel bus depots, major commercial roadways, and deteriorated public housing that is frequently infected with cockroaches and rodents. (Columbia University's Center for Children's Environmental Health)
+
+By analyzing the distribution of people on the federal poverty line and their household income, we can determine if more people with asthma tend to reside in areas of high poverty, proving that asthma rates are correlated with the health of a neighborhood.
+
+```{r echo=FALSE}
+
+#Bar plots
+#data <- read.csv("data/chs2020_public.csv")
+
+#Variables
+insurance_asthma <- select(data, agegroup6, birthsex, newrace6_b, usborn,
+                           maritalstatus20, education, child, employment20,
+                           emp3, imputed_povertygroup, imputed_povgroup3, 
+                           imputed_neighpovgroup4_1519, everasthma,
+                           currentasthma20, stillasthmaall, rodentsstreet, 
+                           helpneighbors20_q1, discussissues, helpcommproj,
+                           trustkeys, insured, insure5, pcp20, didntgetcare20, 
+                           regularrx, medplace)
+
+clean_insurance_asthma <- na.omit(insurance_asthma)
+
+current_asthma <- clean_insurance_asthma|> filter(currentasthma20 == "1")
+
+
+#Testing distribution of people who had an asthma attack within the past 12 months and their environment
+#Results6 - (imputed_neighpovgroup4_1519) Of the people who had asthma attacks, 21 ppl were low pov, 64 ppl were med pov, 57 ppl were high pov, 31 ppl were very high pov
+
+
+current_asthma <- clean_insurance_asthma|> filter(currentasthma20 == "1")
+
+currentneigh <- select(current_asthma, imputed_neighpovgroup4_1519, imputed_povertygroup)
+
+
+current <- currentneigh |> 
+  group_by(imputed_neighpovgroup4_1519) |> 
+  summarize(count = n())
+
+
+ggplot(current, aes(x = imputed_neighpovgroup4_1519, y = count, fill = imputed_neighpovgroup4_1519)) +
+  geom_bar(stat = "summary",
+           fun = "mean") +
+  theme_minimal() +
+  labs(
+    title = "Distribution of People Who Expereinced Asthma Attacks
+    and their Placement on the Federal Poverty Line
+    1 = Low Pov, 2 = Medium Pov, 3 = High Pov, Very-High Pov",
+    x = "Federal Poverty Line Group",
+    y = "Number of people"
+  ) +
+  scale_color_brewer(palette = "Pastel1")
+  
+```
+
+## Analysis
+
+To group the data, I first made one group of data with each asthma variable and each neighborhood health variable called: clean_asthma_data.
+
+I added the variables agegroup6, which provides the age distribution of surveyors, and usborn, which determines the origin of surveyors who were born in the United States or abroad, in order to infer additional data when necessary.
+
+To begin, I created various tile correlation charts to visualize how each variable was correlated with the others, creating additional correlation graphs with fewer variables to determine which variables exhibited strong correlations.
+
+```{r echo=FALSE}
+
+#data <- read.csv("data/chs2020_public.csv")
+
+#demographic variables
+demographics <- select(data, agegroup6, birthsex, newrace6_b, usborn,
+                       maritalstatus20, education, child, employment20,
+                       emp3, imputed_povertygroup, imputed_povgroup3, imputed_neighpovgroup4_1519)
+
+clean_demo <- na.omit(demographics)
+
+DemoCor <- cor(clean_demo) |>
+  cor() |>
+  melt() |>
+  as.data.frame()
+
+ggplot(DemoCor, aes(x = Var1, y = Var2, fill = value)) +
+  geom_tile() +
+  scale_fill_gradient2(low = "lightgreen", high = "blue",
+                       midpoint = 0)
+
+```
+
+I also removed the asthma variables and examined the correlations between each variable, which helped me determine which asthma variables show high correlations with others.
+
+```{r echo=FALSE}
+#data <- read.csv("data/chs2020_public.csv")
+
+#demographic variables
+demographics <- select(data, agegroup6, birthsex, newrace6_b, usborn,
+                       maritalstatus20, education, child, employment20,
+                       emp3, imputed_povertygroup, imputed_povgroup3, imputed_neighpovgroup4_1519)
+
+clean_demo <- na.omit(demographics)
+
+#selection of the highly correlated demographic variables
+highdemo <- select(clean_demo, agegroup6, employment20, emp3,
+                   imputed_neighpovgroup4_1519, newrace6_b, education,
+                   imputed_povertygroup, imputed_povgroup3, usborn)
+
+
+#tile plot for the highly correlated demographics variables
+
+highdemoCor <- cor(highdemo) |>
+  cor() |>
+  melt() |>
+  as.data.frame()
+
+ggplot(highdemoCor, aes(x = Var1, y = Var2, fill = value)) +
+  geom_tile() +
+  scale_fill_gradient2(low = "darkred", high = "darkblue",
+                       midpoint = 0)
+
+```
+
+```{r echo=FALSE}
+
+#data <- read.csv("data/chs2020_public.csv")
+
+#adding asthma variables to the highly correlated demographics variables to see how asthma is effected 
+demo_asthma <- select(data, agegroup6, birthsex, newrace6_b, usborn,
+                      maritalstatus20, education, child, employment20,
+                      emp3, imputed_povertygroup, imputed_povgroup3, imputed_neighpovgroup4_1519,
+                      everasthma, currentasthma20, stillasthmaall)
+
+clean_demo_asthma <- na.omit(demo_asthma)
+
+
+
+#tile plot for the highly correlated demographics and asthma variables
+highdemo_asthma <- select(clean_demo_asthma, birthsex, newrace6_b, usborn,
+                          education, imputed_povertygroup, imputed_povgroup3,
+                          imputed_neighpovgroup4_1519, everasthma, currentasthma20, 
+                          stillasthmaall)
+
+highdemo_asthmaCor <- cor(highdemo_asthma) |>
+  cor() |>
+  melt() |>
+  as.data.frame()
+
+#found little to no correlations between the asthma and demographic variables 
+ggplot(highdemo_asthmaCor, aes(x = Var1, y = Var2, fill = value)) +
+  geom_tile() +
+  scale_fill_gradient2(low = "orange", high = "darkblue",
+                       midpoint = 0)
+
+```
+
+To determine the relevant factors of neighborhood health within my data set, I conducted numerous chi-squared tests and t-tests to determine how the asthma variables correlate with others. I found that neighborhood health and a person's position on the poverty line were the most accurate predictors of whether or not they have asthma.
+
+For my main testing, my null hypothesis is that poverty status and environmental conditions do not significantly determine whether or not a New Yorker has asthma, whereas my alternative hypothesis is that poverty status and environmental conditions do significantly determine whether or not a New Yorker has asthma.
+
+All of my p-values for this test were significant with the exception of the help neighbors, discuss issues, helpcommunity, regarding neighborhood health. The p-values for these variables were either barely statistically significant or just below 0.05, indicating that they are unlikely to be significant on their own, but rather in the context of all the variables.
+
+### (1) T-Tests - Poverty line
+
+```{r echo=FALSE}
+
+library(tidyr)
+library(janitor)
+library(dplyr)
+library(ggplot2)
+library(corrplot)
+library(gginference)
+
+#data <- read.csv("data/chs2020_public.csv")
+
+#null: Placement on the poverty line, Household Federal poverty line/poverty rate, and ones birth place does not significantly determine affect wheather or not they have asthma 
+
+#alternative hypothesis: Placement on the poverty line, Household Federal poverty line/poverty rate, and ones birth place does significantly determine affect wheather or not they have asthma 
+
+#Variables
+
+
+
+Tdemo_asthma <- select(data, agegroup6, birthsex, newrace6_b, usborn,
+                       maritalstatus20, education, child, employment20,
+                       emp3, imputed_povertygroup, imputed_povgroup3, imputed_neighpovgroup4_1519,
+                       everasthma, currentasthma20, stillasthmaall)
+
+clean_Tdemo_asthma <- na.omit(Tdemo_asthma)
+
+
+lowpov <- clean_Tdemo_asthma|> filter(imputed_povertygroup == "1")
+
+highpov <- clean_Tdemo_asthma|> filter(imputed_povertygroup == "4")
+
+expov <- clean_Tdemo_asthma|> filter(imputed_povertygroup == "5")
+
+usborn <- clean_Tdemo_asthma|> filter(usborn == "1")
+
+foreignborn <- clean_Tdemo_asthma|> filter(usborn == "2")
+
+
+#P-value = 5.329e-05 -- Significant
+t.test(lowpov$everasthma, highpov$everasthma, paired = F, alternative = "two.sided")
+
+
+#P-value = 9.691e-06 -- Significant
+#testing if people who have lowpoverty with asthma still have asthma and the same thing for high poverty
+t.test(lowpov$stillasthmaall, highpov$stillasthmaall, paired = F, alternative = "two.sided")
+
+
+```
+
+### (2) T-Tests - Neighborhood Health
+
+```{r echo=FALSE}
+
+#null: The enviornmental living conditions of a New York citizen does not significantlly determine wheather or not a New Yorker has asthma (mice, neighborhood interactions)
+
+#alternative hypothesis: The enviornmental living conditions of a New York citizen does significantlly determine wheather or not a New Yorker has asthma (mice, neighborhood interactions)
+
+
+#Variables
+envi_asthma <- select(data, agegroup6, birthsex, newrace6_b, usborn,
+                       maritalstatus20, education, child, employment20,
+                       emp3, imputed_povertygroup, imputed_povgroup3, imputed_neighpovgroup4_1519,
+                       everasthma, currentasthma20, stillasthmaall, rodentsstreet, 
+                      helpneighbors20_q1, discussissues, helpcommproj, trustkeys)
+
+clean_envi_asthma <- na.omit(envi_asthma)
+
+yes_asthma <- clean_envi_asthma|> filter(everasthma == "1")
+
+#filtering rodent variables
+mice_asthma <- clean_envi_asthma|> filter(rodentsstreet == "1")
+no_mice_asthma <- clean_envi_asthma|> filter(rodentsstreet == "2")
+
+#filtering neighboorhood interaction variables
+
+helpnei_asthma <- clean_envi_asthma|> filter(helpneighbors20_q1 == c("1" , "2"))
+no_helpnei_asthma <- clean_envi_asthma|> filter(helpneighbors20_q1 == c("4" , "5"))
+
+discuss_asthma <- clean_envi_asthma|> filter(discussissues == c("1" , "2"))
+no_discuss_asthma <- clean_envi_asthma|> filter(helpneighbors20_q1 == c("3" , "4"))
+
+helpcom_asthma <- clean_envi_asthma|> filter(helpcommproj == c("1" , "2"))
+no_helpcom_asthma <- clean_envi_asthma|> filter(helpcommproj == c("3" , "4"))
+
+trustk_asthma <- clean_envi_asthma|> filter(trustkeys == c("1" , "2"))
+no_trustk_asthma <- clean_envi_asthma|> filter(trustkeys == c("3" , "4"))
+
+#T-Tests 
+
+#P-value = 0.01838 -- Significant
+#Compare the people with mice and asthma variable and without mice and asthma variable
+t.test(mice_asthma$everasthma, no_mice_asthma$everasthma, paired = F, alternative = "two.sided")
+
+
+#P-value = 0.5005 -- NOT Significant (likely not significsant on its own -- do anova)
+#Compare the people who help neighbors with asthma variable and who dont and asthma variable
+t.test(helpnei_asthma$everasthma, no_helpnei_asthma$everasthma, paired = F, alternative = "two.sided")
+
+
+#P-value = 0.9344 -- NOT Significant (likely not significsant on its own -- do anova)
+#Compare the people who discuss issues with the neighborhood with asthma variable and who dont and asthma variable
+t.test(discuss_asthma$everasthma, no_discuss_asthma$everasthma, paired = F, alternative = "two.sided")
+
+
+#P-value = 0.9194 -- NOT Significant (likely not significsant on its own -- do anova)
+#Compare the people who plan events with the neighborhood with asthma variable and who dont and asthma variable
+t.test(helpcom_asthma$everasthma, no_helpcom_asthma$everasthma, paired = F, alternative = "two.sided")
+
+#P-value = 0.9764 -- NOT Significant (likely not significsant on its own -- do anova)
+#Compare the people who can trust their neighbor with asthma variable and who dont and asthma variable
+t.test(trustk_asthma$everasthma, no_trustk_asthma$everasthma, paired = F, alternative = "two.sided")
+
+
+```
+
+### (1) Chi-Squared Tests - Poverty line
+
+```{r echo=FALSE}
+
+
+library(tidyr)
+library(janitor)
+library(dplyr)
+library(ggplot2)
+library(corrplot)
+#data <- read.csv("data/chs2020_public.csv")
+
+
+#null: Placement on the poverty line, Household Federal poverty line/poverty rate, and ones birth place does not significantly determine affect wheather or not they have asthma 
+
+#alternative hypothesis: Placement on the poverty line, Household Federal poverty line/poverty rate, and ones birth place does significantly determine affect wheather or not they have asthma 
+
+
+#Variables
+Tdemo_asthma <- select(data, agegroup6, birthsex, newrace6_b, usborn,
+                       maritalstatus20, education, child, employment20,
+                       emp3, imputed_povertygroup, imputed_povgroup3, imputed_neighpovgroup4_1519,
+                       everasthma, currentasthma20, stillasthmaall)
+
+clean_Tdemo_asthma <- na.omit(Tdemo_asthma)
+
+#Chi-Squared Tests
+
+
+#Results - P-value = 4.216184e-06 -- Significant 
+Table <- table(clean_Tdemo_asthma$imputed_neighpovgroup4_1519, clean_Tdemo_asthma$everasthma)
+
+chi_results <- chisq.test(Table)
+chi_results$p.value
+c1 <- chi_results$residuals
+#plot
+corrplot(c1, is.corr = F)
+
+
+#Results - P-value = 2.597664e-06 -- Significant 
+Table2 <- table(clean_Tdemo_asthma$imputed_povertygroup, clean_Tdemo_asthma$everasthma)
+chi_results <- chisq.test(Table2)
+chi_results$p.value
+c2 <- chi_results$residuals
+#plot
+corrplot(c2, is.corr = F)
+
+
+#Results - P-value = 5.486352e-44 -- Significant 
+Table3 <- table(clean_Tdemo_asthma$usborn, clean_Tdemo_asthma$everasthma)
+
+chi_results <- chisq.test(Table3)
+chi_results$p.value
+c3<- chi_results$residuals
+#plot
+corrplot(c3, is.corr = F)
+
+
+
+
+
+#CHI-SQUARED PT 2
+
+
+#null: Placement on the poverty line, poverty rate, and ones birth place does not significantly determine affect wheather or not a newyorker STILL has asthma 
+
+#alternative hypothesis: Placement on the poverty line, poverty rate, and ones birth place does significantly determine affect wheather or not a newyorker STILL has asthma 
+
+
+#Variables
+
+Tdemo_asthma <- select(data, agegroup6, birthsex, newrace6_b, usborn,
+                       maritalstatus20, education, child, employment20,
+                       emp3, imputed_povertygroup, imputed_povgroup3, imputed_neighpovgroup4_1519,
+                       everasthma, currentasthma20, stillasthmaall)
+
+clean_Tdemo_asthma <- na.omit(Tdemo_asthma)
+
+still_asthma <- clean_Tdemo_asthma|> filter(stillasthmaall == "1")
+
+
+
+#Chi-Squared Tests
+
+
+#Results - P-value = 9.799256e-21 -- Significant 
+Table4 <- table(still_asthma$imputed_neighpovgroup4_1519, still_asthma$stillasthmaall)
+
+chi_results <- chisq.test(Table4)
+chi_results$p.value
+c4 <- chi_results$residuals
+
+
+#Results - P-value = 2.56599e-17 -- Significant 
+Table5 <- table(still_asthma$imputed_povertygroup, still_asthma$stillasthmaall)
+chi_results <- chisq.test(Table5)
+chi_results$p.value
+c5 <- chi_results$residuals
+
+
+
+#Results - P-value = 2.93614e-39 -- Significant 
+Table6 <- table(still_asthma$usborn, still_asthma$stillasthmaall)
+chi_results <- chisq.test(Table6)
+chi_results$p.value
+c6 <- chi_results$residuals
+
+
+
+
+
+```
+
+### (2) Chi-Squared Tests - Living conditions
+
+```{r echo=FALSE}
+
+library(tidyr)
+library(janitor)
+library(dplyr)
+library(ggplot2)
+library(corrplot)
+#data <- read.csv("data/chs2020_public.csv")
+
+
+
+#null: The enviornmental living conditions of a New York citizen does not significantlly determine wheather or not a New Yorker has asthma (mice, neighborhood interactions)
+
+#alternative hypothesis: The enviornmental living conditions of a New York citizen does significantlly determine wheather or not a New Yorker has asthma (mice, neighborhood interactions)
+
+
+#Variables
+envi_asthma <- select(data, agegroup6, birthsex, newrace6_b, usborn,
+                       maritalstatus20, education, child, employment20,
+                       emp3, imputed_povertygroup, imputed_povgroup3, imputed_neighpovgroup4_1519,
+                       everasthma, currentasthma20, stillasthmaall, rodentsstreet, 
+                      helpneighbors20_q1, discussissues, helpcommproj, trustkeys)
+
+clean_envi_asthma <- na.omit(envi_asthma)
+
+
+#Chi-Squared Tests
+
+#Results - P-value = 0.0183156 -- Significant 
+t1 <- table(clean_envi_asthma$rodentsstreet, clean_envi_asthma$everasthma)
+
+chi_results <- chisq.test(t1)
+chi_results$p.value
+c1 <- chi_results$residuals
+#plot
+corrplot(c1, is.corr = F)
+
+
+#Results - P-value = 0.2826679 -- Not Significant 
+t2 <- table(clean_envi_asthma$helpneighbors20_q1, clean_envi_asthma$everasthma)
+chi_results <- chisq.test(t2)
+chi_results$p.value
+c2 <- chi_results$residuals
+#plot
+corrplot(c2, is.corr = F)
+
+
+
+#Results - P-value = 0.1111788 -- Not Significant 
+t3 <- table(clean_envi_asthma$discussissues, clean_envi_asthma$everasthma)
+
+chi_results <- chisq.test(t3)
+chi_results$p.value
+c3<- chi_results$residuals
+#plot
+corrplot(c3, is.corr = F)
+
+
+#Results - P-value = 0.3042556 -- Not Significant 
+t4 <- table(clean_envi_asthma$helpcommproj, clean_envi_asthma$everasthma)
+
+chi_results <- chisq.test(t4)
+chi_results$p.value
+c4 <- chi_results$residuals
+#plot
+corrplot(c4, is.corr = F)
+
+
+#Results - P-value = 0.04847091 -- Significant 
+t5 <- table(clean_envi_asthma$trustkeys, clean_envi_asthma$everasthma)
+
+chi_results <- chisq.test(t5)
+chi_results$p.value
+c5 <- chi_results$residuals
+#plot
+corrplot(c5, is.corr = F)
+
+
+
+
+
+#CHI-SQUARED PT 2
+
+
+#null: The enviornmental living conditions of a New York citizen does not significantlly determine wheather or not a New Yorker STILL has asthma (mice, neighborhood interactions)
+
+#alternative hypothesis: The enviornmental living conditions of a New York citizen does not significantlly determine wheather or not a New Yorker STILL has asthma (mice, neighborhood interactions) 
+
+
+#Variables
+
+envi_asthma <- select(data, agegroup6, birthsex, newrace6_b, usborn,
+                       maritalstatus20, education, child, employment20,
+                       emp3, imputed_povertygroup, imputed_povgroup3, imputed_neighpovgroup4_1519,
+                       everasthma, currentasthma20, stillasthmaall, rodentsstreet, 
+                      helpneighbors20_q1, discussissues, helpcommproj, trustkeys)
+
+clean_envi_asthma <- na.omit(envi_asthma)
+
+still_asthma <- clean_envi_asthma|> filter(stillasthmaall == "1")
+
+
+#Chi-Squared Tests
+
+
+#Results - P-value = 0.004131 -- Significant 
+T1 <- table(still_asthma$rodentsstreet, still_asthma$stillasthmaall)
+
+chi_results <- chisq.test(T1)
+chi_results$p.value
+C1 <- chi_results$residuals
+
+
+#Results - P-value = 8.775508e-50 -- Significant 
+T2 <- table(still_asthma$helpneighbors20_q1, still_asthma$stillasthmaall)
+chi_results <- chisq.test(T2)
+chi_results$p.value
+C2 <- chi_results$residuals
+
+
+#Results - P-value = 3.52164e-18 -- Significant 
+T3 <- table(still_asthma$discussissues, still_asthma$stillasthmaall)
+chi_results <- chisq.test(T3)
+chi_results$p.value
+C3<- chi_results$residuals
+
+
+#Results - P-value = 5.744945e-08 -- Significant 
+T4 <- table(still_asthma$helpcommproj, still_asthma$stillasthmaall)
+chi_results <- chisq.test(T4)
+chi_results$p.value
+C4<- chi_results$residuals
+
+
+#Results - P-value = 9.166917e-31 -- Significant 
+T5 <- table(still_asthma$trustkeys, still_asthma$stillasthmaall)
+chi_results <- chisq.test(T5)
+chi_results$p.value
+C5 <- chi_results$residuals
+
+```
+
+## Regression Models
+
+In order to test if the environmental factors were significant in predicting whether or not someone has asthma, I ran many regression machine learning models. Among the three models I tested, the one with the lowest mean absolute error and root mean square error was a liner regression.
+
+```{r echo=FALSE}
+
+#Regression dataset splits
+
+reg_split <- initial_split(clean_envi_asthma, prop = .75)
+
+#use the split to form testing and training sets
+reg_train <- training(reg_split)
+reg_test <- testing(reg_split)
+
+
+##set a seed for producability, gives us the same results every time
+set.seed(71723)
+
+#Liner regression
+
+#Findings
+#null: there is no relationship between the dependent variable and the independent variables
+#null: The enviornmental living conditions of a New York citizen does not significantlly determine wheather or not a New Yorker has asthma (mice, neighborhood interactions)
+#alternative: there is a relationship between the dependent variable and the independent variables
+#alternative hypothesis: The enviornmental living conditions of a New York citizen does significantlly determine wheather or not a New Yorker has asthma (mice, neighborhood interactions)
+
+#(p-value: < 2.2e-16) Reject the null
+
+#what finding can  pull from age groupings?
+lm_fit <- linear_reg() |>
+  set_engine("lm") |>
+  set_mode("regression") |>
+  fit(currentasthma20 ~ rodentsstreet + helpneighbors20_q1 + discussissues + helpcommproj + trustkeys, data = reg_train)
+
+
+lm_fit$fit
+summary(lm_fit$fit)
+
+
+##boosted decision trees
+boost_reg_fit <- boost_tree() |>
+  set_engine("xgboost") |>
+  set_mode("regression") |>
+  fit(currentasthma20 ~ rodentsstreet + helpneighbors20_q1 + discussissues + helpcommproj + trustkeys, data = reg_train)
+
+boost_reg_fit$fit
+
+#Reveals that the error is decreasing over time
+boost_reg_fit$fit$evaluation_log
+
+
+#random forest
+#regression
+
+forest_reg_fit <- rand_forest() |>
+  set_engine("ranger") |>
+  set_mode("regression") |>
+  fit(currentasthma20 ~ rodentsstreet + helpneighbors20_q1 + discussissues + helpcommproj + trustkeys, data = reg_train)
+
+forest_reg_fit$fit
+
+
+
+## Step 8: Evaluate Model Preformance on Test Set
+#Calculate errors for regression
+library(yardstick)
+#Regression models: lm_fit, boost_reg_fit, forest_reg_fit
+
+predict(lm_fit, reg_test)
+
+reg_results <- reg_test
+
+#tells us how much error is between the trues and the predictions
+reg_results$lm_pred <- predict(lm_fit, reg_test)$.pred
+reg_results$boost_pred <- predict(boost_reg_fit, reg_test)$.pred
+reg_results$forest_pred <- predict(forest_reg_fit, reg_test)$.pred
+
+
+
+#truth is currentasthma20, false in Lm_pred
+#RESULTS: Lm_Pred has the lowest error for both mae(0.0925) and rmse(0.222)
+yardstick::mae(reg_results, currentasthma20, lm_pred)
+yardstick::mae(reg_results, currentasthma20, boost_pred)
+yardstick::mae(reg_results, currentasthma20, forest_pred)
+
+yardstick::rmse(reg_results, currentasthma20, lm_pred)
+yardstick::rmse(reg_results, currentasthma20, boost_pred)
+yardstick::rmse(reg_results, currentasthma20, forest_pred)
+
+
+library(Metrics)
+
+errors <- data.frame(mae = yardstick::mae(reg_results, currentasthma20, lm_pred),
+                    rmse = yardstick::rmse(reg_results, currentasthma20, lm_pred),
+                    modelType = "lm_pred")
+
+
+errors2 <- data.frame(mae = yardstick::mae(reg_results, currentasthma20, boost_pred),
+                     rmse = yardstick::rmse(reg_results, currentasthma20, boost_pred),
+                     modelType = "Boosted Tree")
+
+
+errors3 <- data.frame(mae = yardstick::mae(reg_results, currentasthma20, forest_pred),
+                     rmse = yardstick::rmse(reg_results, currentasthma20, forest_pred),
+                     modelType = "Random Forest")
+
+
+combinederrors <- rbind(errors,
+                errors2,
+                data.frame(mae = yardstick::mae(reg_results, currentasthma20, forest_pred),
+                           rmse = yardstick::rmse(reg_results, currentasthma20, forest_pred),
+                           modelType = "Random Forest"))
+
+
+combinederrors <- data.frame(combinederrors)
+
+
+
+#Plots
+
+#plot of errors
+
+library(ggplot2)
+
+combinederrors$mae..estimate
+
+
+ggplot(combinederrors, aes(x = modelType, y = mae..estimate, fill = modelType)) +
+  geom_bar(stat = "summary",
+           fun = "mean") +
+  theme_minimal() +
+  labs(
+    title = "Distribution of Errors (mae)",
+    x = "Model Type",
+    y = "mae estimate"
+  ) +
+  scale_fill_manual(values = c("lightgreen", "lightpink", "lightblue"))
+
+
+ggplot(combinederrors, aes(x = modelType, y = rmse..estimate, fill = modelType)) +
+  geom_bar(stat = "summary",
+           fun = "mean") +
+  theme_minimal() +
+  labs(
+    title = "Distribution of Errors (rmse)",
+    x = "Model Type",
+    y = "rmse estimate"
+  ) +
+  scale_fill_manual(values = c("lightgreen", "lightpink", "lightblue"))
+
+
+#point plot of predicted vs actual values for rmse
+
+actual <- reg_results$currentasthma20
+predicted <- reg_results$lm_pred
+predicted2 <- reg_results$forest_pred
+
+values <- data.frame(actual = actual,
+                     predicted = predicted,
+                     predicted2 = predicted2)
+
+
+
+ggplot(values, aes(x = actual, y = predicted)) +
+  geom_abline(lty = "dashed", color = "black") +
+  geom_point() +
+  theme_minimal() +
+  annotate(geom = "text", label = paste("rmse =", round(rmse(actual, predicted),2)),
+           x = 6, y = 1.8)
+
+```
+
+## Results:
+
+Overall, I did not find a clear distinction between the presence of asthma and asthma attacks among New Yorkers and their environment. I believe that the fact that I had to infer many of the variables had a significant impact on the results I collected. Variables that would have provided me with the precise location and neighborhood health of surveyors would have likely supported my hypothesis of high poverty neighborhoods and asthma rates in New York City, based on evidence from other government studies conducted in the city that support my thesis. Moreover, if I had access to variables pertaining to air pollution, they would have likely affected the relationship between variables in my neighborhood selection. NYC is known to be a culturally diverse city, so if my results were more reflected of people lived experiences, interventions could be designed to be accessible and inclusive for individuals with limited English proficiency, such as providing translated materials or utilizing interpreters for those battling symptoms of asthma.
+
+People in the high poverty group had lower neighborhood health rates, which is the most important factor in determining whether or not a person has asthma, as poorer community health indicates higher pollution rates and fewer neighborhood interactions, indicating that fewer efforts are made to improve the overall health of certain neighborhoods. When relating these findings to asthma variables, however, the differences between high and low class survey respondents were too similar to draw meaningful conclusions.
+
+However, the data on the middle class in the income variables has a significant effect on the results of this study. This is due to the fact that a large proportion of New York City residents are considered middle class, indicating that they make up a significant portion of the class distribution. Since the middle class is such a broad spectrum, it is possible for middle class people to live in and experience poor neighborhood communities, especially in New York City where a middle class salary is likely not enough to support someone living in a high quality apartment in a good neighborhood while still supporting themselves without jeopardizing other aspects of their life such as food and clothing. If I had access to the housing variables in my data set, I could have investigated the living conditions of each individual to strengthen my conclusions. Overall, if I had had access to additional variables, my findings would likely have been drastically different. However, based on my data, it is too unreasonable to conclude that asthma prevalence is significantly higher in high-poverty neighborhoods due to poorer neighborhood health and less access to appropriate healthcare.
+
+# Acknowledgments
+
+I would like to thank the Coding School and its faculty and staff for providing me with the funds to complete this program and for teaching me about R. Without your guidance and support, I wouldn't have had the tools or mindset to make it far in this program.
+
+-   **Sarah Parker**
+
+-   **Yijia Wang**
+
+-   **Mira Bali**
+
+-   **Tejas Kamtam**
+
+-   **Alex Dong**
+
+-   **Delaney Rice**
+
+I would also like to thank Dr. Abba Greenleaf for meeting with my group and I each week to discuss various aspects of public health and for assisting us in expanding our projects. Thank you for always lending a helping hand when necessary.
+
+-   **Dr. Abba Greenleaf**
+
+Lastly, I'd like to thank my group members, **Esenia**, **Keerti**, **Erika**, **Janice**, and **Leyla**, for their contributions to the group and positive encouragement as we each work on our individual datasets.
+
+### Code and Data Availability
+
+GitHub Repository: <https://github.com/the-codingschool/DSRP-2023-Greenleaf>
+
+Data sources: <https://www.nyc.gov/assets/doh/downloads/pdf/episrv/chs2020-codebook.pdf>
+
+### Citations
+
+"Asthma." Columbia University Mailman School of Public Health, 28 Mar. 2023, [www.publichealth.columbia.edu/research/centers/columbia-center-childrens-environmental-health/our-research/health-effects/asthma](http://www.publichealth.columbia.edu/research/centers/columbia-center-childrens-environmental-health/our-research/health-effects/asthma).

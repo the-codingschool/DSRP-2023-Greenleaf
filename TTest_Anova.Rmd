@@ -1,0 +1,324 @@
+# T-Tests
+
+```{r}
+#Part 1
+
+#Imports and datasets
+
+library(tidyr)
+library(janitor)
+library(dplyr)
+library(ggplot2)
+library(corrplot)
+data <- read.csv("data/chs2020_public.csv")
+
+insure_asthma <- select(data, agegroup6, everasthma, currentasthma20, 
+                        stillasthmaall, firsttoldasthma, insured, insure5, imputed_povertygroup, imputed_povgroup3, imputed_neighpovgroup4_1519)
+
+clean_insure_asthma <- na.omit(insure_asthma)
+
+
+
+
+#null: there is no diffrence between in the prevelence of asthma between neighboors with varying placements on the poverty line
+
+#alternative hypothesis: there is a diffrence between in the prevelence of asthma between neighboors with varying placements on the poverty line
+
+#findings - reject null
+
+library(gginference)
+
+yes_asthma <- clean_insure_asthma|> filter(everasthma == "1")
+
+yes_test <- t.test(yes_asthma$everasthma, yes_asthma$imputed_neighpovgroup4_1519, paired = F)
+
+ggttest(yes_test)
+
+
+ggplot(data = yes_asthma, aes(x = imputed_neighpovgroup4_1519)) +
+  geom_histogram(fill = "lightblue")
+
+
+t.test(clean_insure_asthma$insured, clean_insure_asthma$everasthma)
+
+```
+
+### (1) T-Tests - Poverty line
+
+```{r}
+
+library(tidyr)
+library(janitor)
+library(dplyr)
+library(ggplot2)
+library(corrplot)
+library(gginference)
+
+data <- read.csv("data/chs2020_public.csv")
+
+#null: Placement on the poverty line, Household Federal poverty line/poverty rate, and ones birth place does not significantly determine affect wheather or not they have asthma 
+
+#alternative hypothesis: Placement on the poverty line, Household Federal poverty line/poverty rate, and ones birth place does significantly determine affect wheather or not they have asthma 
+
+#Variables
+
+
+
+Tdemo_asthma <- select(data, agegroup6, birthsex, newrace6_b, usborn,
+                       maritalstatus20, education, child, employment20,
+                       emp3, imputed_povertygroup, imputed_povgroup3, imputed_neighpovgroup4_1519,
+                       everasthma, currentasthma20, stillasthmaall)
+
+clean_Tdemo_asthma <- na.omit(Tdemo_asthma)
+
+
+lowpov <- clean_Tdemo_asthma|> filter(imputed_povertygroup == "1")
+
+highpov <- clean_Tdemo_asthma|> filter(imputed_povertygroup == "4")
+
+expov <- clean_Tdemo_asthma|> filter(imputed_povertygroup == "5")
+
+usborn <- clean_Tdemo_asthma|> filter(usborn == "1")
+
+foreignborn <- clean_Tdemo_asthma|> filter(usborn == "2")
+
+
+#P-value = 5.329e-05 -- Significant
+t.test(lowpov$everasthma, highpov$everasthma, paired = F, alternative = "two.sided")
+
+
+#P-value = 9.691e-06 -- Significant
+#testing if people who have lowpoverty with asthma still have asthma and the same thing for high poverty
+t.test(lowpov$stillasthmaall, highpov$stillasthmaall, paired = F, alternative = "two.sided")
+
+
+
+#P-value = < 2.2e-16 -- Significant
+#testing if people who have lowpoverty with asthma still have asthma and the same thing for high poverty
+t.test(usborn$stillasthmaall, foreignborn$stillasthmaall, paired = F, alternative = "two.sided")
+
+```
+
+### (2) T-Tests - Neighborhood Health
+
+```{r}
+
+#null: The enviornmental living conditions of a New York citizen does not significantlly determine wheather or not a New Yorker has asthma (mice, neighborhood interactions)
+
+#alternative hypothesis: The enviornmental living conditions of a New York citizen does significantlly determine wheather or not a New Yorker has asthma (mice, neighborhood interactions)
+
+
+#Variables
+envi_asthma <- select(data, agegroup6, birthsex, newrace6_b, usborn,
+                       maritalstatus20, education, child, employment20,
+                       emp3, imputed_povertygroup, imputed_povgroup3, imputed_neighpovgroup4_1519,
+                       everasthma, currentasthma20, stillasthmaall, rodentsstreet, 
+                      helpneighbors20_q1, discussissues, helpcommproj, trustkeys)
+
+clean_envi_asthma <- na.omit(envi_asthma)
+
+yes_asthma <- clean_envi_asthma|> filter(everasthma == "1")
+
+#filtering rodent variables
+mice_asthma <- clean_envi_asthma|> filter(rodentsstreet == "1")
+no_mice_asthma <- clean_envi_asthma|> filter(rodentsstreet == "2")
+
+#filtering neighboorhood interaction variables
+
+helpnei_asthma <- clean_envi_asthma|> filter(helpneighbors20_q1 == c("1" , "2"))
+no_helpnei_asthma <- clean_envi_asthma|> filter(helpneighbors20_q1 == c("4" , "5"))
+
+discuss_asthma <- clean_envi_asthma|> filter(discussissues == c("1" , "2"))
+no_discuss_asthma <- clean_envi_asthma|> filter(helpneighbors20_q1 == c("3" , "4"))
+
+helpcom_asthma <- clean_envi_asthma|> filter(helpcommproj == c("1" , "2"))
+no_helpcom_asthma <- clean_envi_asthma|> filter(helpcommproj == c("3" , "4"))
+
+trustk_asthma <- clean_envi_asthma|> filter(trustkeys == c("1" , "2"))
+no_trustk_asthma <- clean_envi_asthma|> filter(trustkeys == c("3" , "4"))
+
+#T-Tests 
+
+#P-value = 0.01838 -- Significant
+#Compare the people with mice and asthma variable and without mice and asthma variable
+t.test(mice_asthma$everasthma, no_mice_asthma$everasthma, paired = F, alternative = "two.sided")
+
+
+#P-value = 0.5005 -- NOT Significant (likely not significsant on its own -- do anova)
+#Compare the people who help neighbors with asthma variable and who dont and asthma variable
+t.test(helpnei_asthma$everasthma, no_helpnei_asthma$everasthma, paired = F, alternative = "two.sided")
+
+
+#P-value = 0.9344 -- NOT Significant (likely not significsant on its own -- do anova)
+#Compare the people who discuss issues with the neighborhood with asthma variable and who dont and asthma variable
+t.test(discuss_asthma$everasthma, no_discuss_asthma$everasthma, paired = F, alternative = "two.sided")
+
+
+#P-value = 0.9194 -- NOT Significant (likely not significsant on its own -- do anova)
+#Compare the people who plan events with the neighborhood with asthma variable and who dont and asthma variable
+t.test(helpcom_asthma$everasthma, no_helpcom_asthma$everasthma, paired = F, alternative = "two.sided")
+
+#P-value = 0.9764 -- NOT Significant (likely not significsant on its own -- do anova)
+#Compare the people who can trust their neighbor with asthma variable and who dont and asthma variable
+t.test(trustk_asthma$everasthma, no_trustk_asthma$everasthma, paired = F, alternative = "two.sided")
+
+
+```
+
+### (2) T-Test - Insurance
+
+```{r}
+#Peoples access to healthcare does not significantly determine wheather or not they have asthma
+
+
+
+
+
+
+#Variables
+insurance_asthma <- select(data, agegroup6, birthsex, newrace6_b, usborn,
+                           maritalstatus20, education, child, employment20,
+                           emp3, imputed_povertygroup, imputed_povgroup3, 
+                           imputed_neighpovgroup4_1519, everasthma,
+                           currentasthma20, stillasthmaall, rodentsstreet, 
+                           helpneighbors20_q1, discussissues, helpcommproj,
+                           trustkeys, insured, insure5, pcp20, didntgetcare20, 
+                           regularrx)
+
+clean_insurance_asthma <- na.omit(insurance_asthma)
+
+still_asthma <- clean_insurance_asthma|> filter(stillasthmaall == "1")
+
+never_asthma <- clean_insurance_asthma|> filter(everasthma == "2")
+
+      
+#null: The fact that surveyors still have asthma does not significantly determine wheater or not they have healthcare/insurance
+
+#alternative hypothesis: The fact that surveyors still have asthma does significantly determine wheater or not they have healthcare/insurance
+
+#P-value = 0.0002127 -- Significant
+#Compare the people who still have asthma and there health care with people who dont have asthma anymore and their healthcare (I would have compared with people with had asthma but not anymore but that could signify that they have healthcare as theyve experinced asthma)
+
+t.test(still_asthma$insured, never_asthma$insured, paired = F, alternative = "two.sided")
+
+
+
+
+
+```
+
+### (3) T-Test - Socioeconomic status
+
+```{r}
+#null: The the socioeconomic status of a New York citizen does not significantlly determine wheather or not a New Yorker has asthma (education, FPL, Occupation)
+
+#alternative hypothesis: The the socioeconomic status of a New York citizen does significantlly determine wheather or not a New Yorker has asthma (education, FPL, Occupation)
+
+
+#Variables
+envi_asthma <- select(data, agegroup6, birthsex, newrace6_b, usborn,
+                       maritalstatus20, education, child, employment20,
+                       emp3, imputed_povertygroup, imputed_povgroup3, imputed_neighpovgroup4_1519,
+                       everasthma, currentasthma20, stillasthmaall, rodentsstreet, 
+                      helpneighbors20_q1, discussissues, helpcommproj, trustkeys)
+
+clean_envi_asthma <- na.omit(envi_asthma)
+
+
+#filtering education variables
+#less than high school will act as the no variable
+lesshighedu_asthma <- clean_envi_asthma|> filter(education == "1")
+highedu_asthma <- clean_envi_asthma|> filter(education == "2")
+somecoledu_asthma <- clean_envi_asthma|> filter(education == "3")
+coledu_asthma <- clean_envi_asthma|> filter(education == "4")
+
+
+#filtering employment variables
+
+emp_asthma <- clean_envi_asthma|> filter(emp3 == "1")
+noworkforce_asthma <- clean_envi_asthma|> filter(emp3 == "3")
+noemp_asthma <- clean_envi_asthma|> filter(emp3 == "2")
+
+
+
+
+#T-Tests 
+
+#P-value = 0.364 -- NOT Significant
+#Compare the people with completed high school education and asthma variable and without completed high school education and asthma variable
+t.test(highedu_asthma$currentasthma20, lesshighedu_asthma$currentasthma20, paired = F, alternative = "two.sided")
+
+
+#P-value = 0.4942 -- NOT Significant (likely not significsant on its own -- do anova)
+#Compare the people with some level of college/technical education and asthma variable and without completed high school education and asthma variable
+t.test(somecoledu_asthma$currentasthma20, lesshighedu_asthma$currentasthma20, paired = F, alternative = "two.sided")
+
+
+#P-value = 0.3557 -- NOT Significant (likely not significsant on its own -- do anova)
+#Compare the people with completed college education and asthma variable and without completed high school education and asthma variable
+t.test(coledu_asthma$currentasthma20, lesshighedu_asthma$currentasthma20, paired = F, alternative = "two.sided")
+
+
+
+#Same thing but for stillasthma
+
+#P-value = 0.03045 -- Significant
+#Compare the people with completed high school education and still have asthma variable and without completed high school education and still have asthma variable
+t.test(highedu_asthma$stillasthmaall, lesshighedu_asthma$stillasthmaall, paired = F, alternative = "two.sided")
+
+
+#P-value = 0.143 -- NOT Significant (likely not significsant on its own -- do anova)
+#Compare the people with some level of college/technical education and still have asthma variable and without completed high school education and still have asthma variable
+t.test(somecoledu_asthma$stillasthmaall, lesshighedu_asthma$stillasthmaall, paired = F, alternative = "two.sided")
+
+
+#P-value = 0.0004632 -- Significant
+#Compare the people with completed college education and still have asthma variable and without completed high school education and still have asthma variable
+t.test(coledu_asthma$stillasthmaall, lesshighedu_asthma$stillasthmaall, paired = F, alternative = "two.sided")
+
+
+
+
+#T-Tests for employment variables
+
+emp_asthma <- clean_envi_asthma|> filter(emp3 == "1")
+noworkforce_asthma <- clean_envi_asthma|> filter(emp3 == "3")
+noemp_asthma <- clean_envi_asthma|> filter(emp3 == "2")
+
+
+#P-value = 0.6913 -- NOT Significant
+#Compare the people who are employed and asthma variable and who arent employed and asthma variable
+t.test(emp_asthma$currentasthma20, noemp_asthma$currentasthma20, paired = F, alternative = "two.sided")
+
+#P-value = 0.06903 --  Significant
+#Compare the people who are employed and asthma variable and who arent employed and asthma variable
+t.test(emp_asthma$stillasthmaall, noemp_asthma$stillasthmaall, paired = F, alternative = "two.sided")
+
+
+```
+
+### Plotting Practice (ignore)
+
+```{r}
+library(tidyverse)
+library(tidymodels)
+library(dplyr)
+library(ggplot2)
+data <- read.csv("data/chs2020_public.csv")
+
+ggplot(clean_demo_asthma$agegroup6, geom = "histogram")
+
+
+
+ggplot(clean_demo_asthma$agegroup6) +
+  geom_histogram() +
+  theme_minimal()
+
+ggplot(data = clean_demo_asthma, aes(x = agegroup6)) +
+  geom_histogram(fill = "lightblue")
+
+t.test(clean_demo_asthma$agegroup6, mu = 4)
+
+
+
+```
