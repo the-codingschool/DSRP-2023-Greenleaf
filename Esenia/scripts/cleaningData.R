@@ -39,7 +39,7 @@ mentalhealth <- filter(healthdata2, mood1 == "1", mood1 == "2", mood2 == "1",
 filter(healthdata2, mood1 == "1", mood1 == "2", mood2 == "1",
                     mood2 == "2", mood3 == "1", mood3 == "2", mood4 == "1",
                     mood5 == "1", mood5 == "2", mood6 == "1", mood6 == "2",
-                    imputed_povertygroup == "3", imputed_povertygroup == "4")
+                    imputed_neighpovgroup4_1519 == "3", imputed_neighpovgroup4_1519 == "4")
 mentalhealthdata <- select(data, imputed_neighpovgroup4_1519, mood1, mood2, 
                            mood3, mood4, mood5, mood6)
 dataCors <- mentalhealthdata |> 

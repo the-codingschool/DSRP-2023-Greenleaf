@@ -1,0 +1,107 @@
+---
+title: "High Poverty Rates Correspond with Mental Health Rates in New York"
+author: "Esenia Hernandez"
+date: "2023-08-07"
+output: pdf_document
+---
+
+## High Poverty Rates Correspond with Mental Health Rates
+
+[Abstract:]{.underline}
+
+Mental health impacts people all throughout the world. During the Covid-19 pandemic, mental health rates rose significantly in New York, especially in low-income communities. To observe how poverty affects mental health, I used the 2020 New York Common Health Survey. This survey has over 8,000 responses and I focused specifically on the mental health and poverty group variables. Throughout my research, I discovered that there is a significant difference in mental health rates among the poverty groups, but some were also similar to each other. These findings proved my initial hypothesis and highlighted the gaps in mental health among poverty groups. Lastly, poverty groups two and three had the highest rates of mental health among all groups. These results can be used to further explore the impacts poverty has on mental health and treatment in these groups to take action for improvement.
+
+[Background:]{.underline}
+
+In 2020, the Covid-19 pandemic had a big impact on health all over the world. Specifically on mental health in low-income communities. According to the New York Health Foundation, "low-income New Yorkers experienced the highest rates of poor mental health." Raising the question, to what extent do poverty rates affect mental health and treatment among New York residents in 2020?
+
+**Hypothesis:** Poverty has a significant impact on mental health among New York residents.
+
+Overall, poverty can affect the ability to be diagnosed and receive treatment for mental health illnesses. Through the first-hand experience of living in a low-income community, mental health issues are often overlooked and dismissed due to the unavailability to receive the treatment and care needed. In order to explore the effects of poverty, my research will be focused on studying the New York Common Health Survey from 2020. The Common Health Survey is a computer-assisted telephone interviewing system that is used to collect survey data from residents 18 years old and above. This data is useful in observing a variety of poverty groups and demographics regarding health.
+
+[Results:]{.underline}
+
+**Variable Definition Table**
+
+![](images/Screenshot 2023-08-08 142431.png)
+
+**I. Poverty Rate and Mental Health Correlation Plot**
+
+```{r echo = FALSE}
+
+data <- read.csv("data/chs2020_public.csv")
+getwd()
+
+library(dplyr)
+library(tidymodels)
+library(reshape2)
+library(rsample)
+library(parsnip)
+library(yardstick)
+library(ggplot2)
+library(imputeTS)
+
+healthdata <- chs2020_public
+
+healthdata2 <- na_mean(data)
+
+filter(healthdata2, mood1 == "1", mood1 == "2", mood2 == "1", mood2 == "2", mood3 == "1", mood3 == "2", mood4 == "1", mood5 == "1", mood5 == "2", mood6 == "1", mood6 == "2", imputed_neighpovgroup4_1519 == "3", imputed_neighpovgroup4_1519 == "4")
+
+mentalhealthdata <- select(data, imputed_neighpovgroup4_1519, mood1, mood2, 
+                           mood3, mood4, mood5, mood6)
+dataCors <- mentalhealthdata |> 
+  cor() |>
+  melt() |>
+  as.data.frame()
+
+ggplot(dataCors, aes(x = Var1, y = Var2, fill = value)) +
+  geom_tile() +
+  scale_fill_gradient2(low = "lightgray", high = "royalblue", mid = "lightblue",
+                       midpoint = 0)
+```
+
+This plot shows the correlation between poverty and mental health variables. Based on the plot, `mood2` and `mood6` have the highest positive correlation with poverty. These variables will be used to compare the rates of mental health among poverty groups.
+
+**Hypothesis Testing**
+
+Apart from the correlation plot, t-testing, a statistical test used to compare means, was performed to compare the mental health rates among the wealthiest and poorest groups of residents. The t-test resulted in a p-value of **0.02012**, demonstrating a significant difference between the groups.
+
+Additionally, machine learning models were developed, specifically regression models. A boosted tree and random forest model were used to observe any changes in poverty rate and mental health. The models demonstrated a high percentage of errors, showing room for improvement.
+
+**II. Frequency of Nervousness among Poverty Groups**
+
+```{r echo = FALSE}
+ggplot(data = healthdata2, aes(x = imputed_neighpovgroup4_1519, y = mood2, fill = imputed_neighpovgroup4_1519)) +
+  geom_col(stat = "identity") +
+  labs(x = "Poverty Rates",
+      y = "Nervousness")
+```
+
+This bar graph shows how frequently feelings of nervousness were present among poverty groups. Based on the graph, poverty groups have different amounts of frequency.
+
+**III. Frequency of Worthlessness among Poverty Groups**
+
+```{r echo = FALSE}
+ggplot(data = healthdata2, aes(x = imputed_neighpovgroup4_1519, y = mood6, fill = imputed_neighpovgroup4_1519)) +
+  geom_col(stat = "stack") +
+  labs(x = "Poverty Rates",
+       y = "Worthless")
+```
+
+This bar graph shows how frequent feelings of worthlessness were present among poverty groups. Similar to the previous figure, poverty groups varied in frequency.
+
+[Discussion:]{.underline}
+
+Based on the results, poverty groups two and three have the highest rates of mental health. Demonstrating that poverty has a significant impact on mental health and proving the hypothesis. These results can help medical workers further research in low-income areas and create a plan of action to help residents get the treatment needed. At first, I expected the groups with the highest level of poverty to have the highest rates of mental health.
+
+However, poverty group two has significantly spiked results due to a greater amount of people interviewed in that group. Additionally, many of the variables from the survey dataset were not available due to transferring issues which limited further exploration of variables.
+
+Some next steps would be to explore the probability of substance abuse by including different variables. As well as the further development of machine learning models to observe changes. This research would help determine if mental health plays a big role in drinking alcohol and smoking in New York.
+
+[Code and Data Availability:]{.underline}
+
+Coding can be found on [GitHub](github.com/the-codingschool/DSRP-2023-Greenleaf/tree/main/Esenia). The New York Common Health Survey 2020 data can be found [here](https://www.nyc.gov/site/doh/data/data-sets/community-health-survey-public-use-data.page).
+
+[Acknowledgments:]{.underline}
+
+I would like to acknowledge Columbia University professor, Dr. Greenleaf for mentoring me throughout my research and for helping me learn more about public health. I would also like to acknowledge The Coding School for granting me a full scholarship to participate in the Data Science Research Program. Lastly, I would like to acknowledge Sarah Parker, Yijia Wang, and Mira Bell for helping me learn all about R and fixing bugs.
