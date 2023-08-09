@@ -27,8 +27,7 @@ Overall, poverty can affect the ability to be diagnosed and receive treatment fo
 
 **I. Poverty Rate and Mental Health Correlation Plot**
 
-```{r echo = FALSE}
-
+```{r graph1, echo=FALSE}
 data <- read.csv("data/chs2020_public.csv")
 getwd()
 
@@ -41,7 +40,7 @@ library(yardstick)
 library(ggplot2)
 library(imputeTS)
 
-healthdata <- chs2020_public
+healthdata <- data
 
 healthdata2 <- na_mean(data)
 
@@ -54,10 +53,11 @@ dataCors <- mentalhealthdata |>
   melt() |>
   as.data.frame()
 
-ggplot(dataCors, aes(x = Var1, y = Var2, fill = value)) +
+graph1 <- ggplot(dataCors, aes(x = Var1, y = Var2, fill = value)) +
   geom_tile() +
   scale_fill_gradient2(low = "lightgray", high = "royalblue", mid = "lightblue",
                        midpoint = 0)
+plot(graph1)
 ```
 
 This plot shows the correlation between poverty and mental health variables. Based on the plot, `mood2` and `mood6` have the highest positive correlation with poverty. These variables will be used to compare the rates of mental health among poverty groups.
@@ -70,22 +70,24 @@ Additionally, machine learning models were developed, specifically regression mo
 
 **II. Frequency of Nervousness among Poverty Groups**
 
-```{r echo = FALSE}
-ggplot(data = healthdata2, aes(x = imputed_neighpovgroup4_1519, y = mood2, fill = imputed_neighpovgroup4_1519)) +
+```{r graph2, echo=FALSE}
+graph2 <- ggplot(data = healthdata2, aes(x = imputed_neighpovgroup4_1519, y = mood2, fill = imputed_neighpovgroup4_1519)) +
   geom_col(stat = "identity") +
   labs(x = "Poverty Rates",
       y = "Nervousness")
+plot(graph2)
 ```
 
 This bar graph shows how frequently feelings of nervousness were present among poverty groups. Based on the graph, poverty groups have different amounts of frequency.
 
 **III. Frequency of Worthlessness among Poverty Groups**
 
-```{r echo = FALSE}
-ggplot(data = healthdata2, aes(x = imputed_neighpovgroup4_1519, y = mood6, fill = imputed_neighpovgroup4_1519)) +
+```{r graph3, echo=FALSE}
+graph3 <- ggplot(data = healthdata2, aes(x = imputed_neighpovgroup4_1519, y = mood6, fill = imputed_neighpovgroup4_1519)) +
   geom_col(stat = "stack") +
   labs(x = "Poverty Rates",
        y = "Worthless")
+plot(graph3)
 ```
 
 This bar graph shows how frequent feelings of worthlessness were present among poverty groups. Similar to the previous figure, poverty groups varied in frequency.
