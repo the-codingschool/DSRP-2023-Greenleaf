@@ -5,11 +5,9 @@ date: "2023-08-07"
 output: pdf_document
 ---
 
-## High Poverty Rates Correspond
+## High Poverty Rates Correspond 
 
-## with Mental Health Rates 
-
-## in New York
+## with Mental Health Rates
 
 [Abstract:]{.underline}
 
@@ -31,7 +29,7 @@ Overall, poverty can affect the ability to be diagnosed and receive treatment fo
 
 **I. Poverty Rate and Mental Health Correlation Plot**
 
-```{r graph1, echo=FALSE, message=TRUE, warning=TRUE, paged.print=FALSE}
+```{r graph1, echo=FALSE}
 data <- read.csv("data/chs2020_public.csv")
 getwd()
 
@@ -75,7 +73,7 @@ Additionally, machine learning models were developed, specifically regression mo
 
 **II. Frequency of Nervousness among Poverty Groups**
 
-```{r graph2, echo=FALSE, message=TRUE, warning=FALSE, paged.print=FALSE}
+```{r graph2, echo=FALSE}
 graph2 <- ggplot(data = healthdata2, aes(x = imputed_neighpovgroup4_1519, y = mood2, fill = imputed_neighpovgroup4_1519)) +
   geom_col(stat = "identity") +
   labs(x = "Poverty Rates",
@@ -87,7 +85,7 @@ This bar graph shows how frequently feelings of nervousness were present among p
 
 **III. Frequency of Worthlessness among Poverty Groups**
 
-```{r graph3, echo=FALSE, message=TRUE, warning=FALSE, paged.print=FALSE}
+```{r graph3, echo=FALSE}
 graph3 <- ggplot(data = healthdata2, aes(x = imputed_neighpovgroup4_1519, y = mood6, fill = imputed_neighpovgroup4_1519)) +
   geom_col(stat = "stack") +
   labs(x = "Poverty Rates",
